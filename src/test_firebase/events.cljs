@@ -3,12 +3,12 @@
    [re-frame.core :as re-frame]
    [test-firebase.db :as db]
    [day8.re-frame.tracing :refer-macros [fn-traced]]
-   [test-firebase.firebase :refer [save!]]))
+   [test-firebase.firebase :refer [set-value!]]))
 
 (re-frame/reg-fx
  :set
  (fn [{:keys [path data]}]
-   (save! path data)))
+   (set-value! path data)))
 
 (re-frame/reg-event-db
  ::initialize-db

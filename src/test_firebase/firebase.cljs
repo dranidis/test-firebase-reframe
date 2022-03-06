@@ -24,12 +24,17 @@
   [db path]
   (fdb/ref db (string/join "/" path)))
 
-(db-ref (getDB (initApp)) "hello")
+;; (db-ref (getDB (initApp)) "hello")
 
-(defn save!
-  [path data]
-  (fdb/set
-   (db-ref DB path) (clj->js data)))
+(defn set-value!
+  "Sets the value. Optionally then and catch callback functions can
+   be provided"
+  ([path data] (set-value! path data (fn []) (fn [_])))
+  ([path data then-callback catch-callback]
+   (-> (fdb/set
+        (db-ref DB path) (clj->js data))
+       (.then (then-callback))
+       (.catch #(catch-callback %)))))
 
 (defn on-value
   "Default only-once is false"
@@ -46,8 +51,9 @@
   (on-value (db-ref DB path) #(rf/dispatch [event %])))
 
 (comment
-  (save! ["user"] "dimitris")
-  ;
+  (set-value! [\!] "dd" #(println "SUCCESS") #(println "ERRROR" %))
+
+      ;
   )
 
 
