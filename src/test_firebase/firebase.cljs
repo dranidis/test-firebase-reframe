@@ -31,16 +31,22 @@
   (fdb/set
    (db-ref DB path) (clj->js data)))
 
+(defn on-value
+  "Default only-once is false"
+  ([ref callback] (on-value ref callback false))
+  ([ref callback only-once?]
+   (fdb/onValue ref
+                (fn [snap-shot]
+               ;; ^js https://shadow-cljs.github.io/docs/UsersGuide.html#infer-externs
+                  (callback (js->clj (.val ^js snap-shot) :keywordize-keys true)))
+                #js {:onlyOnce only-once?})))
+
 (defn on-value-sub
   [path event]
-  (fdb/onValue (db-ref DB path)
-               ;; ^js https://shadow-cljs.github.io/docs/UsersGuide.html#infer-externs
-               #(rf/dispatch [event (js->clj (.val ^js %) :keywordize-keys true)])))
+  (on-value (db-ref DB path) #(rf/dispatch [event %])))
 
 (comment
   (save! ["user"] "dimitris")
-
-
   ;
   )
 
