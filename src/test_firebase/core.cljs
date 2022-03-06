@@ -19,10 +19,7 @@
     (rdom/render [views/main-panel] root-el)))
 
 (defn init []
-
   (re-frame/dispatch-sync [::events/initialize-db])
   (on-value-sub [:user] ::events/received)
-  (re-frame/dispatch [::events/save {:a 1 :b 2 :name "Dimitris" :m [1 2 3]}])
-  (println {:a 1 :b 2 :name "Dimitris" :m [1 2 3]})
   (dev-setup)
   (mount-root))
