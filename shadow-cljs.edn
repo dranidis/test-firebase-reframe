@@ -34,19 +34,13 @@
    :release
    {:build-options
     {:ns-aliases
-     {day8.re-frame.tracing day8.re-frame.tracing-stubs}}}
-   :js-options {:resolve {"firebase-app" {:target :npm :require "firebase/app"}
-                          "firebase-database" {:target :npm :require "firebase/database"}}}}
+     {day8.re-frame.tracing day8.re-frame.tracing-stubs}}}}
   :browser-test
   {:target    :browser-test
    :ns-regexp "-test$"
    :runner-ns shadow.test.browser
-   :test-dir  "target/browser-test"
-   :js-options {:resolve {"firebase-app" {:target :npm :require "firebase/app"}
-                          "firebase-database" {:target :npm :require "firebase/database"}}}}
+   :test-dir  "target/browser-test"}
   :karma-test
   {:target    :karma
    :ns-regexp "-test$"
-   :output-to "target/karma-test.js"
-   :js-options {:resolve {"firebase-app" {:target :npm :require "firebase/app"}
-                          "firebase-database" {:target :npm :require "firebase/database"}}}}}}
+   :output-to "target/karma-test.js"}}}

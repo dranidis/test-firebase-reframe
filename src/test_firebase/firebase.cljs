@@ -1,11 +1,8 @@
 (ns test-firebase.firebase
   (:require [re-frame.core :as rf]
-            [firebase-app :as fb]
-            [firebase-database :as fdb]
+            ["firebase/app" :as fb]
+            ["firebase/database" :as fdb]
             [clojure.string :as string]))
-
-;; (js/goog.exportSymbol "firebase-app" firebase)
-;; (js/goog.exportSymbol "firebase-database" firebase-database)
 
 (defn initApp []
   (fb/initializeApp
@@ -42,6 +39,7 @@
 
 (comment
   (save! ["user"] "dimitris")
+
 
   ;
   )
