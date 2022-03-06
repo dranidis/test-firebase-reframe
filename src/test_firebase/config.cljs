@@ -1,5 +1,4 @@
-(ns test-firebase.config
-  (:require [test-firebase.firebase :refer [getDB initApp]]))
+(ns test-firebase.config)
 
 (def debug?
   ^boolean goog.DEBUG)

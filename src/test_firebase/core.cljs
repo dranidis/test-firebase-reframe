@@ -5,7 +5,8 @@
    [test-firebase.events :as events]
    [test-firebase.views :as views]
    [test-firebase.config :as config]
-   [test-firebase.firebase :refer [on-value-sub]]))
+   [test-firebase.firebase :refer [init-app]]
+   [test-firebase.firebase-auth :refer [get-auth]]))
 
 
 (defn dev-setup []
@@ -19,7 +20,15 @@
     (rdom/render [views/main-panel] root-el)))
 
 (defn init []
+  ;; at the beginning so that they are loaded first
+  (init-app)
+  (get-auth)
+
   (re-frame/dispatch-sync [::events/initialize-db])
-  (on-value-sub [:user] ::events/received)
   (dev-setup)
   (mount-root))
+
+(comment
+  init
+  ;
+  )
