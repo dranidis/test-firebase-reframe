@@ -1,7 +1,7 @@
 (ns test-firebase.firebase.fb-reframe
   (:require [re-frame.core :as re-frame]
             [day8.re-frame.tracing :refer-macros [fn-traced]]
-            [test-firebase.firebase.firebase-database :refer [set-value! default-set-success-callback default-set-error-callback on-value]]
+            [test-firebase.firebase.firebase-database :refer [set-value! default-set-success-callback default-set-error-callback on-value off]]
             [reagent.ratom :as ratom]
             [re-frame.utils :refer [dissoc-in]]
             [test-firebase.firebase.firebase-auth :refer [error-callback sign-in sign-out]]))
@@ -28,29 +28,34 @@
             (sign-out #(re-frame/dispatch [success %])
                       error-callback)))
 
-(def temp-path [:temp])
+(def temp-path-atom (atom [:temp]))
+
+(defn set-temp-path!
+  [new-path]
+  (swap! temp-path-atom (fn [] new-path)))
 
 (re-frame/reg-sub-raw
  ::on-value
  (fn [app-db [_ path]]
-   (on-value path
-             #(re-frame/dispatch [::write-to-temp path %]))
-   (ratom/make-reaction
-    (fn [] (get-in @app-db (concat temp-path path)))
-    :on-dispose #(re-frame/dispatch [::cleanup-temp path]))))
+   (let [query-token (on-value path
+                               #(re-frame/dispatch [::write-to-temp path %]))]
+     (ratom/make-reaction
+      (fn [] (get-in @app-db (concat @temp-path-atom path)))
+      :on-dispose #(do (off path query-token)
+                       (re-frame/dispatch [::cleanup-temp path]))))))
 
 ;; temp storage for fire-base reads
 (re-frame/reg-event-db
  ::write-to-temp
  (fn-traced [db [_ path data]]
-            (assoc-in db (concat temp-path path) data)))
+            (assoc-in db (concat @temp-path-atom path) data)))
 
 
 ;; clean temp storage
 (re-frame/reg-event-db
  ::cleanup-temp
  (fn-traced [db [_ path]]
-            (dissoc-in db (concat temp-path path))))
+            (dissoc-in db (concat @temp-path-atom path))))
 
 (comment
   (dissoc-in {:a {:b {:c "val"}}} [:a :b :c])

@@ -32,6 +32,12 @@
                   (callback (js->clj (.val ^js snap-shot) :keywordize-keys true)))
                 #js {:onlyOnce only-once?})))
 
+(defn off
+  "Detach listeners"
+  ([path] (fdb/off (db-ref (get-db) path)))
+  ([path listener]
+   (fdb/off (db-ref (get-db) path) listener)))
+
 (defn default-set-success-callback
   [])
 

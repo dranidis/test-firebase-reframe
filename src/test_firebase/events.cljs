@@ -22,9 +22,6 @@
  ::sign-in-success
  (fn-traced [db [_ userCredential]]
             (println "User signed-in")
-    ;; (println (js->clj (.-user userCredential)))
-            (js/console.log ^js (.-user userCredential))
-            (println (.-email (.-user userCredential)))
             (let [email (.-email (.-user userCredential))]
               (assoc db :email email))))
 
@@ -66,8 +63,6 @@
   (re-frame/dispatch [::sign-in "dranidis@gmail.com" "password"])
 
   (re-frame/dispatch [::sign-out])
-
-
 
   (re-frame/dispatch [::update-value ["users" (get-current-user-uid) "games" "1" "available"] false])
   (re-frame/dispatch [::update-value ["users" (get-current-user-uid) "games" "1" "group-with"] "0"])

@@ -6,7 +6,8 @@
    [test-firebase.views :as views]
    [test-firebase.config :as config]
    [test-firebase.firebase.firebase-app :refer [init-app]]
-   [test-firebase.firebase.firebase-auth :refer [get-auth]]))
+   [test-firebase.firebase.firebase-auth :refer [get-auth]]
+   [test-firebase.firebase.fb-reframe :refer [set-temp-path!]]))
 
 
 (defn dev-setup []
@@ -23,6 +24,8 @@
   ;; at the beginning so that they are loaded first
   (init-app)
   (get-auth)
+  ;; set the path in the db for the fb temp storage
+  (set-temp-path! [:fire-base-temp-storage])
 
   (re-frame/dispatch-sync [::events/initialize-db])
   (dev-setup)

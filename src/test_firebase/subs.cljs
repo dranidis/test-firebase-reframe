@@ -4,22 +4,26 @@
    [test-firebase.firebase.firebase-auth :refer [get-current-user-uid]]
    [test-firebase.firebase.fb-reframe :as fb-reframe]))
 
+(defn fb-sub
+  [path]
+  (re-frame/subscribe [::fb-reframe/on-value (concat ["users" (get-current-user-uid) "games"] path)]))
+
 (re-frame/reg-sub
  ::email
- (fn [db _]
+ (fn [db]
    (:email db)))
 
 (re-frame/reg-sub
  ::available
  (fn [[_ id]]
-   (re-frame/subscribe [::fb-reframe/on-value ["users" (get-current-user-uid) "games" id "available"]]))
+   (fb-sub [id "available"]))
  (fn [value]
    value))
 
 (re-frame/reg-sub
  ::group-with
  (fn [[_ id]]
-   (re-frame/subscribe [::fb-reframe/on-value ["users" (get-current-user-uid) "games" id "group-with"]]))
+   (fb-sub [id "group-with"]))
  (fn [value]
    value))
 
