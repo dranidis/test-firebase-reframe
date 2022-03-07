@@ -2,7 +2,7 @@
   (:require [re-frame.core :as re-frame]
             [test-firebase.db :as db]
             [day8.re-frame.tracing :refer-macros [fn-traced]]
-            [test-firebase.firebase.firebase :refer [set-value! default-set-success-callback default-set-error-callback]]
+            [test-firebase.firebase.firebase-database :refer [set-value! default-set-success-callback default-set-error-callback]]
             [test-firebase.firebase.firebase-auth :refer [get-current-user-uid]]))
 
 

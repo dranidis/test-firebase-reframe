@@ -2,7 +2,7 @@
   (:require
    [re-frame.core :as re-frame]
    [test-firebase.events :as events]
-   [test-firebase.firebase.firebase :refer [on-value]]
+   [test-firebase.firebase.firebase-database :refer [on-value]]
    [test-firebase.firebase.firebase-auth :refer [get-current-user-uid]]
    [reagent.ratom :as ratom]))
 
