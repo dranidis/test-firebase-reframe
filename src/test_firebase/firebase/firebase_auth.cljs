@@ -18,21 +18,36 @@
       (.catch catch-callback)))
 
 (defn sign-out
-  [then-callback catch-callback]
-  (-> (firebase-auth/signOut (get-auth))
-      (.then then-callback)
-      (.catch catch-callback)))
+  ([] (sign-out #() #()))
+  ([then-callback catch-callback]
+   (-> (firebase-auth/signOut (get-auth))
+       (.then then-callback)
+       (.catch catch-callback))))
 
 (defn on-auth-state-changed
   "callbask is (fn [user] ... )"
   [callback]
   (firebase-auth/onAuthStateChanged (get-auth) callback))
 
-(defn get-current-user-uid
+(defn get-current-user
   []
   (let [auth (get-auth)]
     (if (and auth (.-currentUser auth))
-      (.-uid (.-currentUser auth))
+      (.-currentUser auth)
+      nil)))
+
+(defn get-current-user-uid
+  []
+  (let [current-user (get-current-user)]
+    (if current-user
+      (.-uid current-user)
+      nil)))
+
+(defn get-current-user-email
+  []
+  (let [current-user (get-current-user)]
+    (if current-user
+      (.-email current-user)
       nil)))
 
 
@@ -70,6 +85,8 @@
 
   (sign-in "dranidis@gmail.com" "wrond" user-callback error-callback)
 
+  (get-current-user-uid)
+  (get-current-user-email)
 
   (on-auth-state-changed on-auth-state-changed-callback)
 
@@ -84,6 +101,7 @@
   (js/console.log (.-currentUser (get-auth)))
 
   (.-uid (.-currentUser (get-auth)))
+
   (.-email (.-currentUser (get-auth)))
 
   (.-emailVerified (.-currentUser (get-auth)))

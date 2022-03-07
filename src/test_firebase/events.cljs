@@ -18,12 +18,60 @@
                                         :data value
                                         :success #(println "Success")}}))
 
+(re-frame/reg-event-db
+ ::sign-in-success
+ (fn-traced [db [_ userCredential]]
+            (println "User signed-in")
+    ;; (println (js->clj (.-user userCredential)))
+            (js/console.log ^js (.-user userCredential))
+            (println (.-email (.-user userCredential)))
+            (let [email (.-email (.-user userCredential))]
+              (assoc db :email email))))
+
+(re-frame/reg-event-db
+ ::sign-out-success
+ (fn-traced [db [_]]
+            (println "User signed-out")
+            (dissoc db :email)))
+
+
+;; (re-frame/reg-event-fx
+;;  ::sign-in
+;;  (fn-traced [_ [_ email password]]
+;;             {::fb-reframe/firebase-sign-in {:email email
+;;                                             :password password
+;;                                             :success ::sign-in-success}}))
+
+(re-frame/reg-event-fx
+ ::sign-in
+ (fn-traced [_ [_ email password]]
+            {:fx [[:dispatch [::sign-out]]
+                  [::fb-reframe/firebase-sign-in {:email email
+                                                  :password password
+                                                  :success ::sign-in-success}]]}))
+
+
+(re-frame/reg-event-fx
+ ::sign-out
+ (fn-traced [_ [_]]
+            {::fb-reframe/firebase-sign-out {:success ::sign-out-success}}))
+
+
+
 (comment
   ;;
   ;; examples of dispatch events
   ;;
-  (re-frame/dispatch [::update-value ["users" (get-current-user-uid) "games" "1" "available"] true])
+  (re-frame/dispatch [::sign-in "adranidisb@gmail.com" "password"])
+  (re-frame/dispatch [::sign-in "dranidis@gmail.com" "password"])
+
+  (re-frame/dispatch [::sign-out])
+
+
+
+  (re-frame/dispatch [::update-value ["users" (get-current-user-uid) "games" "1" "available"] false])
   (re-frame/dispatch [::update-value ["users" (get-current-user-uid) "games" "1" "group-with"] "0"])
+
 
   1
 

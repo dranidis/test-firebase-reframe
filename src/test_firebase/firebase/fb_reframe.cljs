@@ -2,52 +2,61 @@
   (:require [re-frame.core :as re-frame]
             [day8.re-frame.tracing :refer-macros [fn-traced]]
             [test-firebase.firebase.firebase-database :refer [set-value! default-set-success-callback default-set-error-callback on-value]]
-            [reagent.ratom :as ratom]))
+            [reagent.ratom :as ratom]
+            [re-frame.utils :refer [dissoc-in]]
+            [test-firebase.firebase.firebase-auth :refer [error-callback sign-in sign-out]]))
 
 ;;  Effect for setting a value in firebase. Optional :success and :error keys for handlers
 (re-frame/reg-fx
  ::firebase-set
  (fn-traced [{:keys [path data success error]}]
-            (let [success-callback (if success success default-set-success-callback)
-                  error-callback (if error error default-set-error-callback)]
-              (set-value! path
-                          data
-                          success-callback
-                          error-callback))))
+            (set-value! path
+                        data
+                        (if success success default-set-success-callback)
+                        (if error error default-set-error-callback))))
+
+(re-frame/reg-fx
+ ::firebase-sign-in
+ (fn-traced [{:keys [email password success]}]
+            (sign-in email password
+                     #(re-frame/dispatch [success %])
+                     error-callback)))
+
+(re-frame/reg-fx
+ ::firebase-sign-out
+ (fn-traced [{:keys [success]}]
+            (sign-out #(re-frame/dispatch [success %])
+                      error-callback)))
+
+(def temp-path [:temp])
 
 (re-frame/reg-sub-raw
  ::on-value
  (fn [app-db [_ path]]
    (on-value path
-             #(re-frame/dispatch [::write-to-temp (concat [:temp] path) %]))
+             #(re-frame/dispatch [::write-to-temp path %]))
    (ratom/make-reaction
-    (fn [] (get-in @app-db (concat [:temp] path)))
-    :on-dispose #(re-frame/dispatch [::cleanup-temp (concat [:temp] path)]))))
+    (fn [] (get-in @app-db (concat temp-path path)))
+    :on-dispose #(re-frame/dispatch [::cleanup-temp path]))))
 
 ;; temp storage for fire-base reads
 (re-frame/reg-event-db
  ::write-to-temp
  (fn-traced [db [_ path data]]
-            (assoc-in db path data)))
+            (assoc-in db (concat temp-path path) data)))
 
-
-;; https://stackoverflow.com/questions/14488150/how-to-write-a-dissoc-in-command-for-clojure
-(defn dissoc-in
-  "Dissociates an entry from a nested associative structure returning a new
-  nested structure. keys is a sequence of keys. Any empty maps that result
-  will not be present in the new structure."
-  [m [k & ks]]
-  (if ks
-    (if-let [nextmap (get m k)]
-      (let [newmap (dissoc-in nextmap ks)]
-        (if (seq newmap)
-          (assoc m k newmap)
-          (dissoc m k)))
-      m)
-    (dissoc m k)))
 
 ;; clean temp storage
 (re-frame/reg-event-db
  ::cleanup-temp
  (fn-traced [db [_ path]]
-            (dissoc-in db path)))
+            (dissoc-in db (concat temp-path path))))
+
+(comment
+  (dissoc-in {:a {:b {:c "val"}}} [:a :b :c])
+  ;=> {}
+  (dissoc-in {:a {:b {:c "val"}} :a1 "a1"} [:a :b :c])
+  ;=> {:a1 "a1"}
+
+  ;
+  )
