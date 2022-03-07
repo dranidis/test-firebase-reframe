@@ -2,8 +2,8 @@
   (:require
    [re-frame.core :as re-frame]
    [test-firebase.events :as events]
-   [test-firebase.firebase :refer [on-value]]
-   [test-firebase.firebase-auth :refer [get-current-user-uid]]
+   [test-firebase.firebase.firebase :refer [on-value]]
+   [test-firebase.firebase.firebase-auth :refer [get-current-user-uid]]
    [reagent.ratom :as ratom]))
 
 (re-frame/reg-sub-raw

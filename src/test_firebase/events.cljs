@@ -2,8 +2,8 @@
   (:require [re-frame.core :as re-frame]
             [test-firebase.db :as db]
             [day8.re-frame.tracing :refer-macros [fn-traced]]
-            [test-firebase.firebase :refer [set-value! default-set-success-callback default-set-error-callback]]
-            [test-firebase.firebase-auth :refer [get-current-user-uid]]))
+            [test-firebase.firebase.firebase :refer [set-value! default-set-success-callback default-set-error-callback]]
+            [test-firebase.firebase.firebase-auth :refer [get-current-user-uid]]))
 
 
 (defn dissoc-in
@@ -58,8 +58,10 @@
 
 
 (comment
-  (re-frame/dispatch [::update-value ["games" "2" "available"] true])
-  (re-frame/dispatch [::update-value ["games" "3" "group-with"] "1"])
+  (re-frame/dispatch [::update-value ["games" "2" "available"] false])
+  (re-frame/dispatch [::update-value ["games" "3" "group-with"] "2"])
+
+
 
   ;
   )

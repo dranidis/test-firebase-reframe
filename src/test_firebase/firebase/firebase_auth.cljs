@@ -1,4 +1,4 @@
-(ns test-firebase.firebase-auth
+(ns test-firebase.firebase.firebase-auth
   (:require ["firebase/auth" :as firebase-auth]))
 
 (defn get-auth

@@ -1,4 +1,4 @@
-(ns test-firebase.firebase
+(ns test-firebase.firebase.firebase
   (:require ["firebase/app" :as fb]
             ["firebase/database" :as fdb]
             [clojure.string :as string]

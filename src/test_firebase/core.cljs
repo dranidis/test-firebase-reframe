@@ -5,8 +5,8 @@
    [test-firebase.events :as events]
    [test-firebase.views :as views]
    [test-firebase.config :as config]
-   [test-firebase.firebase :refer [init-app]]
-   [test-firebase.firebase-auth :refer [get-auth]]))
+   [test-firebase.firebase.firebase :refer [init-app]]
+   [test-firebase.firebase.firebase-auth :refer [get-auth]]))
 
 
 (defn dev-setup []
