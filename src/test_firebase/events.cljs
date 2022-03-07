@@ -45,7 +45,7 @@
 
 
 (comment
-  (re-frame/dispatch [::update-value ["games" "3" "available"] true])
+  (re-frame/dispatch [::update-value ["games" "3" "available"] false])
 
   (re-frame/dispatch [::update-value ["games" "3" "group-with"] "1"])
 

@@ -7,8 +7,8 @@
   [:div
    (doall (map
            (fn [id]
-             (let [available (re-frame/subscribe [::subs/on-value ["games" (str id) "available"]])
-                   in-box (re-frame/subscribe [::subs/on-value ["games" (str id) "group-with"]])]
+             (let [available (re-frame/subscribe [::subs/available (str id)])
+                   in-box (re-frame/subscribe [::subs/group-with (str id)])]
                ^{:key id}
                [:div
                 "Available " id ": "
@@ -17,7 +17,7 @@
                 (if-not (nil? @in-box) (str @in-box) "null")
           ;
                 ]))
-           (range 10)))]
+           (range 3)))]
      ;
   )
 

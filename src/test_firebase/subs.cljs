@@ -14,3 +14,18 @@
    (ratom/make-reaction
     (fn [] (get-in @app-db (concat [:temp] path)))
     :on-dispose #(re-frame/dispatch [::events/cleanup-temp (concat [:temp] path)]))))
+
+(re-frame/reg-sub
+ ::available
+ (fn [[_ id]]
+   (re-frame/subscribe [::on-value ["games" id "available"]]))
+ (fn [value]
+   value))
+
+(re-frame/reg-sub
+ ::group-with
+ (fn [[_ id]]
+   (re-frame/subscribe [::on-value ["games" id "group-with"]]))
+ (fn [value]
+   value))
+
