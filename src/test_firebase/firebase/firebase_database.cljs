@@ -26,7 +26,6 @@
   "Default only-once is false"
   ([path callback] (on-value path callback false))
   ([path callback only-once?]
-   (println "Calling on-value")
    (fdb/onValue (db-ref (get-db) path)
                 (fn [snap-shot]
                ;; ^js https://shadow-cljs.github.io/docs/UsersGuide.html#infer-externs
