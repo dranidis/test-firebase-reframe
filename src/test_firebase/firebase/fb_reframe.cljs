@@ -4,7 +4,7 @@
             [test-firebase.firebase.firebase-database :refer [set-value! default-set-success-callback default-set-error-callback on-value off]]
             [reagent.ratom :as ratom]
             [re-frame.utils :refer [dissoc-in]]
-            [test-firebase.firebase.firebase-auth :as firebase-auth :refer [error-callback sign-in sign-out]]))
+            [test-firebase.firebase.firebase-auth :as firebase-auth :refer [error-callback sign-in sign-out create-user]]))
 
 ;;  Effect for setting a value in firebase. Optional :success and :error keys for handlers
 (re-frame/reg-fx
@@ -14,6 +14,13 @@
                         data
                         (if success success default-set-success-callback)
                         (if error error default-set-error-callback))))
+
+(re-frame/reg-fx
+ ::firebase-create-user
+ (fn-traced [{:keys [email password success]}]
+            (create-user email password
+                     #(re-frame/dispatch [success %])
+                     error-callback)))
 
 (re-frame/reg-fx
  ::firebase-sign-in

@@ -60,6 +60,20 @@
                                                   :password password
                                                   :success ::sign-in-success}]]}))
 
+(re-frame/reg-event-db
+ ::sign-up-success
+ (fn-traced [db [_ userCredential]]
+            (println "User created")
+            (let [email (.-email (.-user userCredential))]
+              (assoc db :email email))))
+
+(re-frame/reg-event-fx
+ ::sign-up
+ (fn-traced [_ [_ email password]]
+            {::fb-reframe/firebase-create-user {:email email
+                                                :password password
+                                                :success ::sign-up-success}}))
+
 
 (re-frame/reg-event-fx
  ::sign-out

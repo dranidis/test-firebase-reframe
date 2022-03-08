@@ -32,6 +32,7 @@
      [:h1 "User email: " @email]
      [:button {:on-click #(re-frame/dispatch [::events/sign-in "dranidis@gmail.com" "password"])} "Sign-in as dranidis"]
      [:button {:on-click #(re-frame/dispatch [::events/sign-in "adranidisb@gmail.com" "password"])} "Sign-in as adranidisb"]
+     [:button {:on-click #(re-frame/dispatch [::events/sign-up "dranidis@gmail.com" "password"])} "Sign up dranidis"]
      [:button {:on-click #(re-frame/dispatch [::events/sign-out])} "Sign out"]
      (when @email (games-div))]
      ;

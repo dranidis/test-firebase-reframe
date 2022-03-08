@@ -59,6 +59,12 @@
     ;; (println (js->clj (.-user userCredential)))
   (js/console.log ^js (.-user userCredential)))
 
+(defn user-created-callback
+  [userCredential]
+  (println "User created and signed-in")
+    ;; (println (js->clj (.-user userCredential)))
+  (js/console.log ^js (.-user userCredential)))
+
 
 (defn error-callback
   [error]
@@ -84,9 +90,9 @@
 
 (comment
 
-  (create-user "dranidis@gmail.com" "password" user-callback error-callback)
-  (create-user "adranidisb@gmail.com" "password" user-callback error-callback)
-  (create-user "some-random-user-1312321@gmail.com" "password" user-callback error-callback)
+  (create-user "dranidis@gmail.com" "password" user-created-callback error-callback)
+  (create-user "adranidisb@gmail.com" "password" user-created-callback error-callback)
+  (create-user "some-random-user-1312321@gmail.com" "password" user-created-callback error-callback)
 
   (sign-in "dranidis@gmail.com" "password" user-callback error-callback)
   (sign-in "dranidis@gmail.com" "password" user-callback error-callback)
