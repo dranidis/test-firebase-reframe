@@ -19,3 +19,6 @@
 .lsp
 /.clj-kondo/*
 !/.clj-kondo/config.edn
+
+
+.firebase
