@@ -87,8 +87,25 @@
       (.catch error-callback)))
 
 
-
 (comment
+  ;; not working
+  ;; https://firebase.google.com/docs/auth/web/email-link-auth?authuser=0&hl=en#send_an_authentication_link_to_the_users_email_address
+  (def actionCodeSettings {:url "http://localhost:8280/"
+                           :handleCodeInApp true
+                           :iOS {:bundleId "com.example.ios"}
+                           :android {:packageName "com.example.android"
+                                     :installApp true
+                                     :minimumVersion "12"}
+                           :dynamicLinkDomain "example.page.link"})
+  (def email "dranidis@gmail.com")
+  (-> (firebase-auth/sendSignInLinkToEmail (get-auth) email actionCodeSettings)
+      (.then (fn []
+               (println "link sent")
+               (.setItem (.-localStorage js/window) "emailForSignIn" email)))
+      (.catch error-callback))
+;; 
+;;   
+
 
   (create-user "dranidis@gmail.com" "password" user-created-callback error-callback)
   (create-user "adranidisb@gmail.com" "password" user-created-callback error-callback)
