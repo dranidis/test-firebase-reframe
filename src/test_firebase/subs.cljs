@@ -8,10 +8,19 @@
   [path]
   (re-frame/subscribe [::fb-reframe/on-value (concat ["users" (get-current-user-uid) "games"] path)]))
 
+
+
 (re-frame/reg-sub
  ::email
  (fn [db]
    (:email db)))
+
+(re-frame/reg-sub
+ ::public-data
+ (fn [[_ _]]
+   (re-frame/subscribe [::fb-reframe/on-value  ["public"]]))
+ (fn [value]
+   value))
 
 (re-frame/reg-sub
  ::available

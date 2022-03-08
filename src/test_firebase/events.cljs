@@ -8,6 +8,7 @@
  ::initialize-db
  (fn-traced [_ _]
             db/default-db))
+(def poll-time-interval-ms 200)
 
 (re-frame/reg-event-fx
  ::poll-user
@@ -19,8 +20,8 @@
                   {})
                 (if (get-current-user)
                   {:db (assoc (:db cofx) :email (fb-reframe/get-current-user-email))}
-                  {:db (assoc (:db cofx) :time (+ time 100))
-                   :dispatch-later {:ms 100
+                  {:db (assoc (:db cofx) :time (+ time poll-time-interval-ms))
+                   :dispatch-later {:ms poll-time-interval-ms
                                     :dispatch [::poll-user timeout]}})))))
 
 (re-frame/reg-event-fx
@@ -80,6 +81,7 @@
 
   (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "games" "1" "available"] false])
   (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "games" "1" "group-with"] "0"])
+
 
 
   1

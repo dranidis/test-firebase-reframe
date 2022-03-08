@@ -1,4 +1,5 @@
 (ns test-firebase.db)
 
 (def default-db
-  {:name "re-frame"})
+  {:name "re-frame"
+   :public-data ""})

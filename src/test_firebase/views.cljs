@@ -24,8 +24,10 @@
                                (range 3))))]))
 
 (defn main-panel []
-  (let [email (re-frame/subscribe [::subs/email])]
+  (let [email (re-frame/subscribe [::subs/email])
+        public-data (re-frame/subscribe [::subs/public-data])]
     [:div
+     [:h1 "Public data: " @public-data]
      [:h2 "User: " @email]
      [:h2 "Games:"]
      (games-div)]
