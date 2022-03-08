@@ -52,7 +52,6 @@
 
 
 
-
 ;; some callback functions
 (defn user-callback
   [userCredential]
@@ -74,6 +73,15 @@
     (println "Singed in user uid: " (js->clj (.-uid user)) (js->clj (.-email user)))
     (println "logged-out")))
 
+
+(defn set-browser-session-persistence
+  []
+  (-> (firebase-auth/setPersistence (get-auth) firebase-auth/browserSessionPersistence)
+      (.then #(println "SUCCES set persistence"))
+      (.catch error-callback)))
+
+
+
 (comment
 
   (create-user "dranidis@gmail.com" "password" user-callback error-callback)
@@ -85,6 +93,7 @@
 
   (sign-in "dranidis@gmail.com" "wrond" user-callback error-callback)
 
+  (get-current-user)
   (get-current-user-uid)
   (get-current-user-email)
 

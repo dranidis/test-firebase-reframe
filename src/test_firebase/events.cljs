@@ -2,14 +2,26 @@
   (:require [re-frame.core :as re-frame]
             [test-firebase.db :as db]
             [day8.re-frame.tracing :refer-macros [fn-traced]]
-            [test-firebase.firebase.fb-reframe :as fb-reframe]
-            [test-firebase.firebase.firebase-auth :refer [get-current-user-uid]]))
+            [test-firebase.firebase.fb-reframe :as fb-reframe :refer [get-current-user]]))
 
 (re-frame/reg-event-db
  ::initialize-db
  (fn-traced [_ _]
             db/default-db))
 
+(re-frame/reg-event-fx
+ ::poll-user
+ (fn-traced [cofx [_ timeout]]
+            (let [time (:time (:db cofx))]
+              (if (> time timeout)
+                (do
+                  (println "Log in")
+                  {})
+                (if (get-current-user)
+                  {:db (assoc (:db cofx) :email (fb-reframe/get-current-user-email))}
+                  {:db (assoc (:db cofx) :time (+ time 100))
+                   :dispatch-later {:ms 100
+                                    :dispatch [::poll-user timeout]}})))))
 
 (re-frame/reg-event-fx
  ::update-value
@@ -59,13 +71,15 @@
   ;;
   ;; examples of dispatch events
   ;;
+
   (re-frame/dispatch [::sign-in "adranidisb@gmail.com" "password"])
+
   (re-frame/dispatch [::sign-in "dranidis@gmail.com" "password"])
 
   (re-frame/dispatch [::sign-out])
 
-  (re-frame/dispatch [::update-value ["users" (get-current-user-uid) "games" "1" "available"] false])
-  (re-frame/dispatch [::update-value ["users" (get-current-user-uid) "games" "1" "group-with"] "0"])
+  (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "games" "1" "available"] false])
+  (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "games" "1" "group-with"] "0"])
 
 
   1

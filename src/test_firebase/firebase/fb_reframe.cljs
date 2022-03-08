@@ -4,7 +4,7 @@
             [test-firebase.firebase.firebase-database :refer [set-value! default-set-success-callback default-set-error-callback on-value off]]
             [reagent.ratom :as ratom]
             [re-frame.utils :refer [dissoc-in]]
-            [test-firebase.firebase.firebase-auth :refer [error-callback sign-in sign-out]]))
+            [test-firebase.firebase.firebase-auth :as firebase-auth :refer [error-callback sign-in sign-out]]))
 
 ;;  Effect for setting a value in firebase. Optional :success and :error keys for handlers
 (re-frame/reg-fx
@@ -56,6 +56,15 @@
  ::cleanup-temp
  (fn-traced [db [_ path]]
             (dissoc-in db (concat @temp-path-atom path))))
+
+
+(def get-current-user firebase-auth/get-current-user)
+(def get-current-user-uid firebase-auth/get-current-user-uid)
+(def get-current-user-email firebase-auth/get-current-user-email)
+
+(defn set-browser-session-persistence
+  []
+  (firebase-auth/set-browser-session-persistence))
 
 (comment
   (dissoc-in {:a {:b {:c "val"}}} [:a :b :c])
