@@ -32,7 +32,7 @@
 
   ;; poll for a signed-in user for 2 seconds
   ;; auth is not ready
-  (re-frame/dispatch [::events/poll-user 2000])
+  (re-frame/dispatch [::events/poll-user 3000])
 
   (dev-setup)
   (mount-root))
