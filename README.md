@@ -1,8 +1,11 @@
 # test-firebase
 
-A [re-frame](https://github.com/day8/re-frame) application designed to ... well, that part is up to
-you.
+A [re-frame](https://github.com/day8/re-frame) application connecting to Firebase 9.
 
+Inspired by re-frame-firebase.
+
+
+# The following is the template's README
 ## Getting Started
 
 ### Project Overview
