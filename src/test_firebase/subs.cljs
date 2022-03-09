@@ -18,6 +18,31 @@
  (fn [db]
    (:email db)))
 
+;;
+;; collections
+;;
+(re-frame/reg-sub
+ ::collections
+ (fn [[_ _]]
+   (fb-sub-user-id ["collections"]))
+ (fn [collections]
+   collections))
+
+(re-frame/reg-sub
+ ::collection-ids
+ :<- [::collections]
+ (fn [collections]
+   (keys collections)))
+
+;; get the collection with id
+(re-frame/reg-sub
+ ::collection
+ :<- [::collections]
+ (fn [collections [_ id]]
+   (id collections)))
+
+;;
+
 (re-frame/reg-sub
  ::public-data
  (fn [[_ _]]

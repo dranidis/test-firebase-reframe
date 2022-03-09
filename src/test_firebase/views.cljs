@@ -17,11 +17,28 @@
           ;
      ]))
 
+(defn collection-div
+  [collection-id]
+  (let [collection @(re-frame/subscribe [::subs/collection collection-id])]
+    ^{:key collection-id}
+    [:div
+     [:h4 "Id: " collection-id " Name: " (:name collection)]
+     [:ul (map (fn [game]
+                 ^{:key game}
+                 [:li game]) (:games collection))]]))
+
 (defn games-div
   []
   [:div
    [:h2 "Games info"]
    [:div (doall (map game-div (range 3)))]])
+
+(defn collections-div
+  []
+  (let [collection-ids (re-frame/subscribe [::subs/collection-ids])]
+    [:div
+     [:h2 "Collections"]
+     [:div (doall (map collection-div @collection-ids))]]))
 
 (defn main-panel []
   (let [email (re-frame/subscribe [::subs/email])
@@ -34,7 +51,9 @@
      [:button {:on-click #(re-frame/dispatch [::events/sign-in "adranidisb@gmail.com" "password"])} "Sign-in as adranidisb"]
      [:button {:on-click #(re-frame/dispatch [::events/sign-up "dranidis@gmail.com" "password"])} "Sign up dranidis"]
      [:button {:on-click #(re-frame/dispatch [::events/sign-out])} "Sign out"]
-     (when @email (games-div))]
+     (when @email (games-div))
+     (when @email (collections-div))
+     ]
      ;
     ))
 

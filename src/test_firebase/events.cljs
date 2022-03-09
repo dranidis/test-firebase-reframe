@@ -96,6 +96,12 @@
   (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "games" "1" "available"] false])
   (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "games" "1" "group-with"] "0"])
 
+  (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "collections" "collection-1"] (str #{"1" "3" "5"})])
+  (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "collections" "collection-2"] (str #{"4" "2"})])
+  (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "collections" "collection-3"] {:name "My collection" :games #{"1" "2"}}])
+  (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "collections" "collection-1"] {:name "In the car" :games #{"1" "4" "5"}}])
+  (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "collections" "collection-0"] {:name "Empty collection" :games #{}}])
+
 
 
   1
