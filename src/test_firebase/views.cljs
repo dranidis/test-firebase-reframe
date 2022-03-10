@@ -44,7 +44,7 @@
   (let [email (re-frame/subscribe [::subs/email])
         public-data (re-frame/subscribe [::subs/public-data])]
     [:div
-     [:h1 "Public data: "] 
+     [:h1 "Public data: "]
      [:div @public-data]
      [:h1 "User email: " @email]
      [:button {:on-click #(re-frame/dispatch [::events/sign-in "dranidis@gmail.com" "password"])} "Sign-in as dranidis"]
@@ -52,8 +52,7 @@
      [:button {:on-click #(re-frame/dispatch [::events/sign-up "dranidis@gmail.com" "password"])} "Sign up dranidis"]
      [:button {:on-click #(re-frame/dispatch [::events/sign-out])} "Sign out"]
      (when @email (games-div))
-     (when @email (collections-div))
-     ]
+     (when @email (collections-div))]
      ;
     ))
 

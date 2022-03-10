@@ -2,25 +2,50 @@
   (:require ["firebase/database" :as fdb]
             [clojure.string :as string]
             [re-frame.loggers :refer [console]]
-            [test-firebase.firebase.firebase-app :refer [init-app]]))
+            [test-firebase.firebase.firebase-app :refer [init-app]]
+            [test-firebase.firebase.firebase-auth :refer [get-current-user-uid]]))
 
-(defn get-db
+(defn- get-db
   []
   (fdb/getDatabase (init-app)))
 
-(defn db-ref
+(defn- db-ref
   [db path]
   (fdb/ref db (string/join "/" path)))
 
+(defn- fb-set!
+  ([ref data] (fb-set! ref data (fn []) (fn [_])))
+  ([ref data then-callback catch-callback]
+   (-> (fdb/set
+        ref (clj->js data))
+       (.then then-callback)
+       (.catch catch-callback))))
+
+;;
+;; public functions
+;;
 (defn set-value!
-  "Sets the value. Optionally then and catch callback functions can
-   be provided"
   ([path data] (set-value! path data (fn []) (fn [_])))
   ([path data then-callback catch-callback]
-   (-> (fdb/set
-        (db-ref (get-db) path) (clj->js data))
-       (.then then-callback)
-       (.catch #(catch-callback %)))))
+   (fb-set! (db-ref (get-db) path) data then-callback catch-callback)))
+
+
+;; Use the push () method to append data to a list in multiuser applications. 
+;; The push () method generates a unique key every time a new child is added to the specified Firebase reference.
+;; The .key property of a push () reference contains the auto-generated key.
+;; (defn- push-ref
+;;   [path]
+;;   (fdb/push (db-ref (get-db) path)))
+
+(defn push-value!
+  ([path data] (push-value! path data (fn []) (fn [_])))
+  ([path data then-callback catch-callback]
+   (let [ref (fdb/push (db-ref (get-db) path))]
+     (fb-set! ref data then-callback catch-callback)
+     (.-key ref))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 (defn on-value
   "Default only-once is false"
@@ -38,6 +63,8 @@
   ([path listener]
    (fdb/off (db-ref (get-db) path) listener)))
 
+
+
 (defn default-set-success-callback
   [])
 
@@ -46,7 +73,7 @@
   (console :error (js->clj error)))
 
 (comment
-  (set-value! ["users" "VhzqAOJbN3UTWSpRC3t5qz664Y02" "games"] "game"
+  (set-value! ["users" (get-current-user-uid) "games" "2" "available"] false
               #(println "SUCCESS") #(println "ERRROR" (js->clj %)))
 
   ;; make game available
@@ -56,7 +83,7 @@
 
   ;; (re-frame/dispatch [::events/save {:a 1 :b 2 :name "Dimitris" :m [1 2 3]}])
 
-
+  (push-value! ["users" (get-current-user-uid) "collections"] "test3")
       ;
   )
 

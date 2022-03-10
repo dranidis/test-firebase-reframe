@@ -24,12 +24,39 @@
                    :dispatch-later {:ms poll-time-interval-ms
                                     :dispatch [::poll-user timeout]}})))))
 
+
 (re-frame/reg-event-fx
  ::update-value
  (fn-traced [_ [_ path value]]
             {::fb-reframe/firebase-set {:path path
                                         :data value
                                         :success #(println "Success")}}))
+
+(re-frame/reg-event-fx
+ ::push-value
+ (fn-traced [_ [_ path value]]
+            {::fb-reframe/firebase-push {:path path
+                                         :data value
+                                         :success #(println "Success")
+                                         :key-path [:key]}}))
+
+(re-frame/reg-event-fx
+ ::add-collection
+ (fn-traced [_ [_ name]]
+            {::fb-reframe/firebase-push {:path ["users" (fb-reframe/get-current-user-uid) "collections"]
+                                         :data {:name name}
+                                         :success #(println "Success")
+                                         :key-path [:current-collection-key]}}))
+
+(re-frame/reg-event-fx
+ ::add-game-to-collection
+ (fn-traced [cofx [_ game-id]]
+            {::fb-reframe/firebase-set
+             {:path ["users" (fb-reframe/get-current-user-uid)
+                     "collections" (get-in cofx [:db :current-collection-key]) "games" game-id]
+              :data true
+              :success #(println "Success")}}))
+
 
 (re-frame/reg-event-db
  ::sign-in-success
@@ -101,6 +128,24 @@
   (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "collections" "collection-3"] {:name "My collection" :games #{"1" "2"}}])
   (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "collections" "collection-1"] {:name "In the car" :games #{"1" "4" "5"}}])
   (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "collections" "collection-0"] {:name "Empty collection" :games #{}}])
+
+
+  (re-frame/dispatch
+   [::update-value ["users" (fb-reframe/get-current-user-uid) "collections"]
+    {:collection-01 {:name "collection01" :games (str #{"0" "1"})}
+     :collection-02 {:name "collection02" :games (str #{"2" "3"})}}])
+
+  (fb-reframe/get-current-user-uid)
+
+  ;; create a new collection
+  (re-frame/dispatch
+   [::push-value
+    ["users" (fb-reframe/get-current-user-uid) "collections"]
+    {:name "My favorite games No 2"}])
+
+
+  (re-frame/dispatch [::add-collection "A_newcollector 13"])
+  (re-frame/dispatch [::add-game-to-collection  "14"])
 
 
 

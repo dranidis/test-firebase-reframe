@@ -2,7 +2,8 @@
   (:require
    [re-frame.core :as re-frame]
    [test-firebase.firebase.firebase-auth :refer [get-current-user-uid]]
-   [test-firebase.firebase.fb-reframe :as fb-reframe]))
+   [test-firebase.firebase.fb-reframe :as fb-reframe]
+   [clojure.tools.reader.edn :refer [read-string]]))
 
 (defn fb-sub-user-id
   [path]
@@ -26,6 +27,7 @@
  (fn [[_ _]]
    (fb-sub-user-id ["collections"]))
  (fn [collections]
+   (println "collections" collections)
    collections))
 
 (re-frame/reg-sub
@@ -34,12 +36,26 @@
  (fn [collections]
    (keys collections)))
 
+
 ;; get the collection with id
+;; game-ids are in the keys (e.g. {132: true, 124: true})
 (re-frame/reg-sub
  ::collection
  :<- [::collections]
  (fn [collections [_ id]]
-   (id collections)))
+   (let [collection (id collections)
+         games (keys (:games collection))]
+     (assoc collection :games games))))
+
+;; ;; get the collection with id
+;; ;; list of games is stringified (was saved as (str %))
+;; (re-frame/reg-sub
+;;  ::collection
+;;  :<- [::collections]
+;;  (fn [collections [_ id]]
+;;    (let [collection (id collections)
+;;          games (read-string (:games collection))]
+;;      (assoc collection :games games))))
 
 ;;
 

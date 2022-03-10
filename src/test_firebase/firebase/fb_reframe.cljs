@@ -1,7 +1,7 @@
 (ns test-firebase.firebase.fb-reframe
   (:require [re-frame.core :as re-frame]
             [day8.re-frame.tracing :refer-macros [fn-traced]]
-            [test-firebase.firebase.firebase-database :refer [set-value! default-set-success-callback default-set-error-callback on-value off]]
+            [test-firebase.firebase.firebase-database :refer [set-value! default-set-success-callback default-set-error-callback on-value off push-value!]]
             [reagent.ratom :as ratom]
             [re-frame.utils :refer [dissoc-in]]
             [test-firebase.firebase.firebase-auth :as firebase-auth :refer [error-callback sign-in sign-out create-user]]))
@@ -15,12 +15,30 @@
                         (if success success default-set-success-callback)
                         (if error error default-set-error-callback))))
 
+;; the key will be stored in the db at key-path
+(re-frame/reg-fx
+ ::firebase-push
+ (fn-traced [{:keys [path data success error key-path]}]
+            (println "key-path" key-path)
+            (let [key (push-value! path
+                                   data
+                                   (if success success default-set-success-callback)
+                                   (if error error default-set-error-callback))]
+              (re-frame/dispatch [::write-to-db key-path key]))))
+
+(re-frame/reg-event-db
+ ::write-to-db
+ (fn-traced [db [_ path data]]
+            (println "path" path)
+            (assoc-in db path data)))
+
+
 (re-frame/reg-fx
  ::firebase-create-user
  (fn-traced [{:keys [email password success]}]
             (create-user email password
-                     #(re-frame/dispatch [success %])
-                     error-callback)))
+                         #(re-frame/dispatch [success %])
+                         error-callback)))
 
 (re-frame/reg-fx
  ::firebase-sign-in
@@ -45,7 +63,7 @@
  ::on-value
  (fn [app-db [_ path]]
    (let [query-token (on-value path
-                               #(re-frame/dispatch [::write-to-temp path %]))]
+                               #(re-frame/dispatch [::fb-write-to-temp path %]))]
      (ratom/make-reaction
       (fn [] (get-in @app-db (concat @temp-path-atom path)))
       :on-dispose #(do (off path query-token)
@@ -53,7 +71,7 @@
 
 ;; temp storage for fire-base reads
 (re-frame/reg-event-db
- ::write-to-temp
+ ::fb-write-to-temp
  (fn-traced [db [_ path data]]
             (assoc-in db (concat @temp-path-atom path) data)))
 
