@@ -77,8 +77,9 @@
 ;; Utility functions for transforming lists to maps
 ;; Firebase returns a list when the keys are numbers 0, 1, 2
 ;;
-
 (defn- vector->map
+  "Tranforms a vector of elements to a map with the stringified indices as keys.
+   e.g. [0 3 4] => {\"0\": 0 \"1\": 3 \"2\": 4}"
   ([list] (vector->map list 0))
   ([list n]
    (if (empty? list) {}
@@ -86,8 +87,16 @@
 
 (defn- if-vector->map
   [value]
-  (if (and @turn-lists-to-maps-atom? (vector? value)) (vector->map value) value))
+  ;; (println "if-vector->map" value (and @turn-lists-to-maps-atom? (vector? value) (vector->map value)))
+  (if (and @turn-lists-to-maps-atom? (vector? value))
+    (vector->map value)
+    value))
 
+(comment
+  (vector->map [true nil true true])
+
+  ;
+  )
 
 (re-frame/reg-sub-raw
  ::on-value

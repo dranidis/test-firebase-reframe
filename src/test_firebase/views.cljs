@@ -10,8 +10,8 @@
         in-box (re-frame/subscribe [::subs/group-with id])]
     ^{:key id}
     [:div
-     "Game " id " available: "
-     (if-not (nil? @available) (str @available) "null")
+     (str id) " available: " (str @available)
+    ;;  (if-not (nil? @available) (str @available) "null")
      " in box: "
      (if-not (nil? @in-box) (str @in-box) "null")
      [:button {:on-click #(re-frame/dispatch [::events/update-available id true])} "Make av"]
