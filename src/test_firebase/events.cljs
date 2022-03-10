@@ -41,20 +41,42 @@
                                          :key-path [:key]}}))
 
 (re-frame/reg-event-fx
- ::add-collection
+ ::new-collection
  (fn-traced [_ [_ name]]
             {::fb-reframe/firebase-push {:path ["users" (fb-reframe/get-current-user-uid) "collections"]
-                                         :data {:name name}
+                                         :data {:name (if name name "New collection")}
                                          :success #(println "Success")
                                          :key-path [:current-collection-key]}}))
 
+(defn- if-nil-getcurrentkey
+  [collection-key cofx]
+  (if collection-key collection-key (get-in cofx [:db :current-collection-key])))
+
 (re-frame/reg-event-fx
- ::add-game-to-collection
- (fn-traced [cofx [_ game-id]]
+ ::delete-collection
+ (fn-traced [cofx [_ collection-id]]
             {::fb-reframe/firebase-set
              {:path ["users" (fb-reframe/get-current-user-uid)
-                     "collections" (get-in cofx [:db :current-collection-key]) "games" game-id]
+                     "collections" (if-nil-getcurrentkey collection-id cofx)]
+              :data nil
+              :success #(println "Successfully deleted")}}))
+
+(re-frame/reg-event-fx
+ ::add-game-to-collection
+ (fn-traced [cofx [_ game-id collection-id]]
+            {::fb-reframe/firebase-set
+             {:path ["users" (fb-reframe/get-current-user-uid)
+                     "collections" (if-nil-getcurrentkey collection-id cofx) "games" game-id]
               :data true
+              :success #(println "Success")}}))
+
+(re-frame/reg-event-fx
+ ::remove-game-from-collection
+ (fn-traced [cofx [_ game-id collection-id]]
+            {::fb-reframe/firebase-set
+             {:path ["users" (fb-reframe/get-current-user-uid)
+                     "collections" (if-nil-getcurrentkey collection-id cofx) "games" game-id]
+              :data nil
               :success #(println "Success")}}))
 
 
@@ -130,26 +152,20 @@
   (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "collections" "collection-0"] {:name "Empty collection" :games #{}}])
 
 
-  (re-frame/dispatch
-   [::update-value ["users" (fb-reframe/get-current-user-uid) "collections"]
-    {:collection-01 {:name "collection01" :games (str #{"0" "1"})}
-     :collection-02 {:name "collection02" :games (str #{"2" "3"})}}])
+  ;; (re-frame/dispatch
+  ;;  [::update-value ["users" (fb-reframe/get-current-user-uid) "collections"]
+  ;;   {:collection-01 {:name "collection01" :games (str #{"0" "1"})}
+  ;;    :collection-02 {:name "collection02" :games (str #{"2" "3"})}}])
 
-  (fb-reframe/get-current-user-uid)
-
-  ;; create a new collection
-  (re-frame/dispatch
-   [::push-value
-    ["users" (fb-reframe/get-current-user-uid) "collections"]
-    {:name "My favorite games No 2"}])
-
-
-  (re-frame/dispatch [::add-collection "A_newcollector 13"])
-  (re-frame/dispatch [::add-game-to-collection  "14"])
-
-
-
-  1
+  (re-frame/dispatch [::new-collection "A_newcollector 15"])
+  (re-frame/dispatch [::new-collection])
+  (re-frame/dispatch [::delete-collection])
+  (re-frame/dispatch [::delete-collection "-MxmXZhex9r0ouhklU8j"])
+  (re-frame/dispatch [::add-game-to-collection  "15"])
+  (re-frame/dispatch [::add-game-to-collection  "19"])
+  (re-frame/dispatch [::add-game-to-collection  "21"])
+  (re-frame/dispatch [::add-game-to-collection  "21" "-MxmXcJIieM3txwDIu8a"])
+  (re-frame/dispatch [::remove-game-from-collection "15"])
 
   ;
   )

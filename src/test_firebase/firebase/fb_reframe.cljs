@@ -6,7 +6,8 @@
             [re-frame.utils :refer [dissoc-in]]
             [test-firebase.firebase.firebase-auth :as firebase-auth :refer [error-callback sign-in sign-out create-user]]))
 
-;;  Effect for setting a value in firebase. Optional :success and :error keys for handlers
+;; Effect for setting a value in firebase. Optional :success and :error keys for handlers
+;; Data can be deleted by giving null as value
 (re-frame/reg-fx
  ::firebase-set
  (fn-traced [{:keys [path data success error]}]
