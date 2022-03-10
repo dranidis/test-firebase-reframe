@@ -41,6 +41,20 @@
                                          :key-path [:key]}}))
 
 (re-frame/reg-event-fx
+ ::update-available
+ (fn-traced [_ [_ id value]]
+            {::fb-reframe/firebase-set {:path ["users" (fb-reframe/get-current-user-uid) "available" id]
+                                        :data value
+                                        :success #(println "Success")}}))
+
+(re-frame/reg-event-fx
+ ::update-group-with
+ (fn-traced [_ [_ id value]]
+            {::fb-reframe/firebase-set {:path ["users" (fb-reframe/get-current-user-uid) "group-with" id]
+                                        :data value
+                                        :success #(println "Success")}}))
+
+(re-frame/reg-event-fx
  ::new-collection
  (fn-traced [_ [_ name]]
             {::fb-reframe/firebase-push {:path ["users" (fb-reframe/get-current-user-uid) "collections"]
@@ -136,6 +150,8 @@
   ;; examples of dispatch events
   ;;
 
+  ::push-value ;; for linter
+
   (re-frame/dispatch [::sign-in "adranidisb@gmail.com" "password"])
 
   (re-frame/dispatch [::sign-in "dranidis@gmail.com" "password"])
@@ -143,6 +159,8 @@
   (re-frame/dispatch [::sign-out])
 
   (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "games" "1" "available"] false])
+  (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "games" "available" "1"] true]) ;; or this?
+
   (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "games" "1" "group-with"] "0"])
 
   (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "collections" "collection-1"] (str #{"1" "3" "5"})])
@@ -166,6 +184,12 @@
   (re-frame/dispatch [::add-game-to-collection  "21"])
   (re-frame/dispatch [::add-game-to-collection  "21" "-MxmXcJIieM3txwDIu8a"])
   (re-frame/dispatch [::remove-game-from-collection "15"])
+
+  (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "available" "19"] true])
+  (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "available" "0"] nil])
+  (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "available" "2"] nil])
+
+  (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "group-with" "10"] "90"])
 
   ;
   )

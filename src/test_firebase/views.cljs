@@ -6,23 +6,25 @@
 
 (defn game-div
   [id]
-  (let [available (re-frame/subscribe [::subs/available (str id)])
-        in-box (re-frame/subscribe [::subs/group-with (str id)])]
+  (let [available (re-frame/subscribe [::subs/available id])
+        in-box (re-frame/subscribe [::subs/group-with id])]
     ^{:key id}
     [:div
      "Game " id " available: "
      (if-not (nil? @available) (str @available) "null")
      " in box: "
      (if-not (nil? @in-box) (str @in-box) "null")
-          ;
-     ]))
+     [:button {:on-click #(re-frame/dispatch [::events/update-available id true])} "Make av"]
+     [:button {:on-click #(re-frame/dispatch [::events/update-available id nil])} "Make non-av"]
+     [:button {:on-click #(re-frame/dispatch [::events/update-group-with id (str (rand-int 999))])} "Random box"]
+     [:button {:on-click #(re-frame/dispatch [::events/update-group-with id nil])} "Remove from box"]]))
 
 (defn item-div
   [game-id collection-id]
   ^{:key game-id}
   [:li game-id " "
    [:button {:on-click #(re-frame/dispatch [::events/remove-game-from-collection (name game-id) (name collection-id)])} "X"]])
-  
+
 
 (defn collection-div
   [collection-id]
@@ -39,7 +41,7 @@
   []
   [:div
    [:h2 "Games info"]
-   [:div (doall (map game-div (range 3)))]])
+   [:div (doall (map #(game-div (str %)) (range 5)))]])
 
 (defn collections-div
   []

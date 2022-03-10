@@ -7,7 +7,7 @@
    [test-firebase.config :as config]
    [test-firebase.firebase.firebase-app :refer [init-app]]
    [test-firebase.firebase.firebase-auth :refer [get-auth]]
-   [test-firebase.firebase.fb-reframe :refer [set-temp-path! set-browser-session-persistence]]))
+   [test-firebase.firebase.fb-reframe :refer [set-browser-session-persistence fb-reframe-config]]))
 
 
 (defn dev-setup []
@@ -26,7 +26,9 @@
   (get-auth)
   (set-browser-session-persistence)
   ;; set the path in the db for the fb temp storage
-  (set-temp-path! [:fire-base-temp-storage])
+  ;; and returning maps instead of lists
+  (fb-reframe-config {:temp-path [:fire-base-temp-storage]
+                      :turn-lists-to-maps true})
 
   (re-frame/dispatch-sync [::events/initialize-db])
 

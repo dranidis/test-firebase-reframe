@@ -2,8 +2,7 @@
   (:require
    [re-frame.core :as re-frame]
    [test-firebase.firebase.firebase-auth :refer [get-current-user-uid]]
-   [test-firebase.firebase.fb-reframe :as fb-reframe]
-   [clojure.tools.reader.edn :refer [read-string]]))
+   [test-firebase.firebase.fb-reframe :as fb-reframe]))
 
 (defn fb-sub-user-id
   [path]
@@ -24,10 +23,10 @@
 ;;
 (re-frame/reg-sub
  ::collections
- (fn [[_ _]]
+ (fn []
    (fb-sub-user-id ["collections"]))
  (fn [collections]
-   (println "collections" collections)
+  ;;  (println "collections" collections)
    collections))
 
 (re-frame/reg-sub
@@ -35,7 +34,6 @@
  :<- [::collections]
  (fn [collections]
    (keys collections)))
-
 
 ;; get the collection with id
 ;; game-ids are in the keys (e.g. {132: true, 124: true})
@@ -47,36 +45,45 @@
          games (keys (:games collection))]
      (assoc collection :games games))))
 
-;; ;; get the collection with id
-;; ;; list of games is stringified (was saved as (str %))
-;; (re-frame/reg-sub
-;;  ::collection
-;;  :<- [::collections]
-;;  (fn [collections [_ id]]
-;;    (let [collection (id collections)
-;;          games (read-string (:games collection))]
-;;      (assoc collection :games games))))
-
-;;
 
 (re-frame/reg-sub
  ::public-data
- (fn [[_ _]]
+ (fn []
    (fb-sub-root ["public"]))
+ (fn [value]
+   value))
+
+
+;;
+;; available games
+;;
+(re-frame/reg-sub
+ ::available-games
+ (fn []
+   (fb-sub-user-id ["available"]))
  (fn [value]
    value))
 
 (re-frame/reg-sub
  ::available
- (fn [[_ id]]
-   (fb-sub-user-id ["games" id "available"]))
+ :<- [::available-games]
+ (fn [available-games [_ id]]
+  ;;  (println "::available " id available-games)
+   ((keyword id) available-games)))
+
+;;
+;; grouping (for boxes with games)
+;;
+(re-frame/reg-sub
+ ::group-with-all
+ (fn []
+   (fb-sub-user-id ["group-with"]))
  (fn [value]
    value))
 
 (re-frame/reg-sub
  ::group-with
- (fn [[_ id]]
-   (fb-sub-user-id ["games" id "group-with"]))
- (fn [value]
-   value))
+ :<- [::group-with-all]
+ (fn [value [_ id]]
+   ((keyword id) value)))
 

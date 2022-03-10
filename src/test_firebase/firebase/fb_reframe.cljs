@@ -54,17 +54,46 @@
             (sign-out #(re-frame/dispatch [success %])
                       error-callback)))
 
+;;
+;; Settings for FB and reframe
+;;
 (def temp-path-atom (atom [:temp]))
+(def turn-lists-to-maps-atom? (atom true))
 
 (defn set-temp-path!
   [new-path]
   (swap! temp-path-atom (fn [] new-path)))
 
+(defn set-turn-lists-to-maps!
+  [turn?]
+  (swap! turn-lists-to-maps-atom? (fn [] turn?)))
+
+(defn fb-reframe-config
+  [{:keys [temp-path turn-lists-to-maps?]}]
+  (set-temp-path! temp-path)
+  (set-turn-lists-to-maps! turn-lists-to-maps?))
+
+;;
+;; Utility functions for transforming lists to maps
+;; Firebase returns a list when the keys are numbers 0, 1, 2
+;;
+
+(defn- vector->map
+  ([list] (vector->map list 0))
+  ([list n]
+   (if (empty? list) {}
+       (assoc (vector->map (rest list) (inc n)) (keyword (str n)) (first list)))))
+
+(defn- if-vector->map
+  [value]
+  (if (and @turn-lists-to-maps-atom? (vector? value)) (vector->map value) value))
+
+
 (re-frame/reg-sub-raw
  ::on-value
  (fn [app-db [_ path]]
    (let [query-token (on-value path
-                               #(re-frame/dispatch [::fb-write-to-temp path %]))]
+                               #(re-frame/dispatch [::fb-write-to-temp path (if-vector->map %)]))]
      (ratom/make-reaction
       (fn [] (get-in @app-db (concat @temp-path-atom path)))
       :on-dispose #(do (off path query-token)
