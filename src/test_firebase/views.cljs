@@ -17,15 +17,23 @@
           ;
      ]))
 
+(defn item-div
+  [game-id collection-id]
+  ^{:key game-id}
+  [:li game-id " "
+   [:button {:on-click #(re-frame/dispatch [::events/remove-game-from-collection (name game-id) (name collection-id)])} "X"]])
+  
+
 (defn collection-div
   [collection-id]
   (let [collection @(re-frame/subscribe [::subs/collection collection-id])]
     ^{:key collection-id}
     [:div
      [:h4 "Id: " collection-id " Name: " (:name collection)]
-     [:ul (map (fn [game]
-                 ^{:key game}
-                 [:li game]) (:games collection))]]))
+     ;; not sure why collection-id is a keyword
+     [:button {:on-click #(re-frame/dispatch [::events/add-game-to-collection  (rand-int 1000) (name collection-id)])} "Add random item"]
+     [:button {:on-click #(re-frame/dispatch [::events/delete-collection (name collection-id)])} "Delete collection"]
+     [:ul (map #(item-div % collection-id) (:games collection))]]))
 
 (defn games-div
   []
@@ -38,6 +46,7 @@
   (let [collection-ids (re-frame/subscribe [::subs/collection-ids])]
     [:div
      [:h2 "Collections"]
+     [:button {:on-click #(re-frame/dispatch [::events/new-collection (str "Collection-" (rand-int 1000))])} "New collection"]
      [:div (doall (map collection-div @collection-ids))]]))
 
 (defn main-panel []
@@ -50,6 +59,7 @@
      [:button {:on-click #(re-frame/dispatch [::events/sign-in "dranidis@gmail.com" "password"])} "Sign-in as dranidis"]
      [:button {:on-click #(re-frame/dispatch [::events/sign-in "adranidisb@gmail.com" "password"])} "Sign-in as adranidisb"]
      [:button {:on-click #(re-frame/dispatch [::events/sign-up "dranidis@gmail.com" "password"])} "Sign up dranidis"]
+     [:button {:on-click #(re-frame/dispatch [::events/sign-up "adranidisb@gmail.com" "password"])} "Sign up adranidisb"]
      [:button {:on-click #(re-frame/dispatch [::events/sign-out])} "Sign out"]
      (when @email (games-div))
      (when @email (collections-div))]
