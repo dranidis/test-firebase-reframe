@@ -2,7 +2,7 @@
   (:require [re-frame.core :as re-frame]
             [test-firebase.db :as db]
             [day8.re-frame.tracing :refer-macros [fn-traced]]
-            [test-firebase.firebase.fb-reframe :as fb-reframe :refer [get-current-user]]))
+            [re-frame-firebase-nine.fb-reframe :as fb-reframe :refer [get-current-user]]))
 
 (re-frame/reg-event-db
  ::initialize-db
@@ -43,16 +43,24 @@
 (re-frame/reg-event-fx
  ::update-available
  (fn-traced [_ [_ id value]]
-            {::fb-reframe/firebase-set {:path ["users" (fb-reframe/get-current-user-uid) "available" id]
-                                        :data value
-                                        :success #(println "Success")}}))
+            (let [data (if value value nil)]
+              {::fb-reframe/firebase-set {:path ["users" (fb-reframe/get-current-user-uid) "available" id]
+                                          :data data
+                                          :success #(println "Success")}})))
 
 (re-frame/reg-event-fx
  ::update-group-with
  (fn-traced [_ [_ id value]]
-            {::fb-reframe/firebase-set {:path ["users" (fb-reframe/get-current-user-uid) "group-with" id]
-                                        :data value
-                                        :success #(println "Success")}}))
+            (let [data (if (empty? value) nil value)]
+              {::fb-reframe/firebase-set {:path ["users" (fb-reframe/get-current-user-uid) "group-with" id]
+                                          :data data
+                                          :success #(println "Success")}})))
+
+(re-frame/reg-event-fx
+ ::save-game
+ (fn-traced [{:keys [db]} [_ id]]
+            {:fx [[:dispatch [::update-available id (get-in db [:form :available id])]]
+                  [:dispatch [::update-group-with id (get-in db [:form :group-with id])]]]}))
 
 (re-frame/reg-event-fx
  ::new-collection

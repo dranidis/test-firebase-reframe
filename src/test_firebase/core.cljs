@@ -5,9 +5,9 @@
    [test-firebase.events :as events]
    [test-firebase.views :as views]
    [test-firebase.config :as config]
-   [test-firebase.firebase.firebase-app :refer [init-app]]
-   [test-firebase.firebase.firebase-auth :refer [get-auth]]
-   [test-firebase.firebase.fb-reframe :refer [set-browser-session-persistence fb-reframe-config]]))
+   [re-frame-firebase-nine.firebase-app :refer [init-app]]
+   [re-frame-firebase-nine.firebase-auth :refer [get-auth]]
+   [re-frame-firebase-nine.fb-reframe :refer [set-browser-session-persistence fb-reframe-config]]))
 
 
 (defn dev-setup []
@@ -22,13 +22,17 @@
 
 (defn init []
   ;; at the beginning so that they are loaded first
-  (init-app)
+
+  (init-app {:apiKey "AIzaSyCpMjjOO9t-TVrzJ-seEy-4MUnH9PWc-uc",
+             :authDomain "test-firebase-refr.firebaseapp.com",
+             :databaseURL "https://test-firebase-refr-default-rtdb.europe-west1.firebasedatabase.app",
+             :projectId "test-firebase-refr",
+             :appId "1:1052651152055:web:4971b846529e25aa0ba332"})
   (get-auth)
   (set-browser-session-persistence)
   ;; set the path in the db for the fb temp storage
   ;; and returning maps instead of lists
-  (fb-reframe-config {:temp-path [:fire-base-temp-storage]
-                      :turn-lists-to-maps true})
+  (fb-reframe-config {:temp-path [:fire-base-temp-storage]})
 
   (re-frame/dispatch-sync [::events/initialize-db])
 

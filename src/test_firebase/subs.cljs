@@ -1,8 +1,9 @@
 (ns test-firebase.subs
   (:require
    [re-frame.core :as re-frame]
-   [test-firebase.firebase.firebase-auth :refer [get-current-user-uid]]
-   [test-firebase.firebase.fb-reframe :as fb-reframe]))
+   [re-frame-firebase-nine.firebase-auth :refer [get-current-user-uid]]
+   [re-frame-firebase-nine.fb-reframe :as fb-reframe]
+   [test-firebase.form-events :as form-events]))
 
 (defn fb-sub-user-id
   [path]
@@ -69,7 +70,9 @@
  :<- [::available-games]
  (fn [available-games [_ id]]
   ;;  (println "::available " id available-games)
-   ((keyword id) available-games)))
+   (let [value ((keyword id) available-games)]
+     (re-frame/dispatch [::form-events/set-value! [:form :available id] value])
+     value)))
 
 ;;
 ;; grouping (for boxes with games)
@@ -85,5 +88,23 @@
  ::group-with
  :<- [::group-with-all]
  (fn [value [_ id]]
-   ((keyword id) value)))
+   (let [val ((keyword id) value)]
+     (re-frame/dispatch [::form-events/set-value! [:form :group-with id] val])
+     val)))
+
+
+(re-frame/reg-sub
+ ::form
+ (fn [[_ id]]
+   [(re-frame/subscribe [::available  id])
+    (re-frame/subscribe [::group-with id])])
+ (fn [[group-with available] [_ _]]
+   {:available available :group-with group-with}))
+
+
+(re-frame/reg-sub
+ ::get-value
+ (fn [db [_ path]]
+   (get-in db path)))
+
 
