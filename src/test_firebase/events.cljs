@@ -66,7 +66,7 @@
  ::save-game
  (fn-traced [{:keys [db]} [_ id]]
             {::fb-reframe/firebase-update {:path ["users" (fb-reframe/get-current-user-uid)]
-                                           :path-data-map {(str "/available/" id) (get-in db [:form :available id])
+                                           :path-data-map {(str "/available/" id) (if-let [v (get-in db [:form :available id])] v nil)
                                                            (str "/group-with/" id) (get-in db [:form :group-with id])}
                                            :success #(println "Success")}}))
 
