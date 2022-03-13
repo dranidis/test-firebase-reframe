@@ -56,11 +56,20 @@
                                           :data data
                                           :success #(println "Success")}})))
 
+;; (re-frame/reg-event-fx
+;;  ::save-game
+;;  (fn-traced [{:keys [db]} [_ id]]
+;;             {:fx [[:dispatch [::update-available id (get-in db [:form :available id])]]
+;;                   [:dispatch [::update-group-with id (get-in db [:form :group-with id])]]]}))
+
 (re-frame/reg-event-fx
  ::save-game
  (fn-traced [{:keys [db]} [_ id]]
-            {:fx [[:dispatch [::update-available id (get-in db [:form :available id])]]
-                  [:dispatch [::update-group-with id (get-in db [:form :group-with id])]]]}))
+            {::fb-reframe/firebase-update {:path ["users" (fb-reframe/get-current-user-uid)]
+                                           :path-data-map {(str "/available/" id) (get-in db [:form :available id])
+                                                           (str "/group-with/" id) (get-in db [:form :group-with id])}
+                                           :success #(println "Success")}}))
+
 
 (re-frame/reg-event-fx
  ::new-collection
