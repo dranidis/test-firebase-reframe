@@ -67,10 +67,10 @@
      ;; not sure why collection-id is a keyword
      [:button {:on-click #(re-frame/dispatch [::events/delete-collection (name collection-id)])} "Delete collection"]
 
-     [:div [input "Item" :text [:form :item-id]]
+     [:div [input "Item" :text [:form collection-id :item-id]]
       [:button {:on-click #(re-frame/dispatch
                             [::events/add-game-to-collection
-                             @(re-frame/subscribe [::subs/get-value [:form :item-id]]) (name collection-id)])} "Add"]]
+                             @(re-frame/subscribe [::subs/get-value [:form collection-id :item-id]]) (name collection-id)])} "Add"]]
      [:ul (map #(item-div % collection-id) (:games collection))]]))
 
 (defn games-div
