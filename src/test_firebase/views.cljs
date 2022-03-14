@@ -26,12 +26,14 @@
 
 (defmethod input-element :default [type path]
   [:input {:type (name type) :value @(re-frame/subscribe [::subs/get-value path])
-           :on-change #(dispatch type path (-> % .-target .-value))}])
+           :on-change #(;;  re-frame/dispatch [::form/set-value! path (-> % .-target .-value)]
+                        dispatch type path (-> % .-target .-value))}])
 
 (defmethod input-element :checkbox [type path]
   (let [checked @(re-frame/subscribe [::subs/get-value path])]
     [:input {:type (name type) :checked (if (nil? checked) false checked)
-             :on-change #(dispatch type path (-> % .-target .-value))}]))
+             :on-change #(;;  re-frame/dispatch [::form/set-value! path (-> % .-target .-value)]
+                          dispatch type path (-> % .-target .-value))}]))
 (defn input
   [label type path]
   [:div
