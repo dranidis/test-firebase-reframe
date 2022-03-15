@@ -3,7 +3,8 @@
    [re-frame.core :as re-frame]
    [re-frame-firebase-nine.firebase-auth :refer [get-current-user-uid]]
    [re-frame-firebase-nine.fb-reframe :as fb-reframe]
-   [test-firebase.form-events :as form-events]))
+   [test-firebase.form-events :as form-events]
+   [test-firebase.utils :refer [is-substring?]]))
 
 (defn fb-sub-user-id
   [path]
@@ -100,6 +101,26 @@
     (re-frame/subscribe [::group-with id])])
  (fn [[group-with available] [_ _]]
    {:available available :group-with group-with}))
+
+
+
+(re-frame/reg-sub
+ ::options
+ (fn [db [_ path all-options]]
+   (->> all-options
+        (filter
+         (fn [{:keys [_ name]}]
+           (or (nil? (get-in db path)) (is-substring? (get-in db path) name)))))))
+
+
+
+(re-frame/reg-sub
+ ::select-size
+ (fn [[_ path all-options]]
+   (re-frame/subscribe [::options path all-options]))
+ (fn [options]
+   ;; an extra option is (Nothing)
+   (min 10 (inc (count options)))))
 
 
 (re-frame/reg-sub

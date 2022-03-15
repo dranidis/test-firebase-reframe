@@ -3,44 +3,9 @@
    [re-frame.core :as re-frame]
    [test-firebase.subs :as subs]
    [test-firebase.events :as events]
-   [test-firebase.form-events :as form]))
+   [test-firebase.forms :refer [input dropdown-search]]
+   [test-firebase.utils :refer [random-names-new]]))
 
-;;
-;; functions for generic form inputs
-;;
-(defmulti dispatch (fn [type _ _] type))
-
-(defmethod dispatch :default [type path _]
-  (throw (js/Error. (str "No dispatch method for form input element of type: " type " for path: " path))))
-
-(defmethod dispatch :text [_ path value]
-  (re-frame/dispatch [::form/set-value! path value]))
-
-(defmethod dispatch :password [_ path value]
-  (re-frame/dispatch [::form/set-value! path value]))
-
-(defmethod dispatch :checkbox [_ path _]
-  (re-frame/dispatch [::form/update-value! path not]))
-
-(defmulti input-element (fn [type _] type))
-
-(defmethod input-element :default [type path]
-  [:input {:type (name type) :value @(re-frame/subscribe [::subs/get-value path])
-           :on-change #(;;  re-frame/dispatch [::form/set-value! path (-> % .-target .-value)]
-                        dispatch type path (-> % .-target .-value))}])
-
-(defmethod input-element :checkbox [type path]
-  (let [checked @(re-frame/subscribe [::subs/get-value path])]
-    [:input {:type (name type) :checked (if (nil? checked) false checked)
-             :on-change #(;;  re-frame/dispatch [::form/set-value! path (-> % .-target .-value)]
-                          dispatch type path (-> % .-target .-value))}]))
-(defn input
-  [label type path]
-  [:div
-   [:label label]
-   [input-element type path]])
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn game-div
   [id]
@@ -49,7 +14,9 @@
     [:div
      [:h4 "Game " (str id)]
      [input "Available" :checkbox [:form :available (str id)]]
-     [input "In box" :text [:form :group-with (str id)]]
+
+     (dropdown-search [:form :group-with (str id)] random-names-new)
+
      [:button {:on-click #(re-frame/dispatch [::events/save-game id])} "Save"]]))
 
 (defn item-div
