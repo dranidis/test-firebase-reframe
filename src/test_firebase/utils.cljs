@@ -13,13 +13,12 @@
 
 
 
-(defn search-list-of-maps-for-keyvalue
+(defn find-key-value-in-map-list
+  "Search a list of maps and return the first map in which the key value pair exists."
   [list keyword value]
   (->> list
        (filter (fn [m] (= value (keyword m))))
        first))
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

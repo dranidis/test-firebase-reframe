@@ -4,7 +4,7 @@
    [test-firebase.subs :as subs]
    [test-firebase.events :as events]
    [test-firebase.forms :refer [input dropdown-search]]
-   [test-firebase.utils :refer [random-names-new]]))
+   [test-firebase.utils :refer [random-names-new find-key-value-in-map-list]]))
 
 
 (defn game-div
@@ -14,16 +14,17 @@
     [:div
      [:h4 "Game " (str id)]
      [input "Available" :checkbox [:form :available (str id)]]
-
+     [:label "Item"]
      (dropdown-search [:form :group-with (str id)] random-names-new :id :name)
-
      [:button {:on-click #(re-frame/dispatch [::events/save-game id])} "Save"]]))
 
 (defn item-div
   [game-id collection-id]
   ^{:key game-id}
-  [:li game-id " "
-   [:button {:on-click #(re-frame/dispatch [::events/remove-game-from-collection (name game-id) (name collection-id)])} "X"]])
+  [:li
+   [:div 
+    (:name (find-key-value-in-map-list random-names-new :id (str (name game-id)))) " "
+    [:button {:on-click #(re-frame/dispatch [::events/remove-game-from-collection (name game-id) (name collection-id)])} "X"]]])
 
 (defn collection-div
   [collection-id]
@@ -34,7 +35,11 @@
      ;; not sure why collection-id is a keyword
      [:button {:on-click #(re-frame/dispatch [::events/delete-collection (name collection-id)])} "Delete collection"]
 
-     [:div [input "Item" :text [:form collection-id :item-id]]
+     [:div
+    ;;  [input "Item" :text [:form collection-id :item-id]]
+      [:label "Add an Item"]
+      (dropdown-search [:form  collection-id :item-id] random-names-new :id :name)
+
       [:button {:on-click #(re-frame/dispatch
                             [::events/add-game-to-collection
                              @(re-frame/subscribe [::subs/get-value [:form collection-id :item-id]]) (name collection-id)])} "Add"]]
