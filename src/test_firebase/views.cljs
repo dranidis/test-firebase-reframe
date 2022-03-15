@@ -15,7 +15,7 @@
      [:h4 "Game " (str id)]
      [input "Available" :checkbox [:form :available (str id)]]
 
-     (dropdown-search [:form :group-with (str id)] random-names-new)
+     (dropdown-search [:form :group-with (str id)] random-names-new :id :name)
 
      [:button {:on-click #(re-frame/dispatch [::events/save-game id])} "Save"]]))
 

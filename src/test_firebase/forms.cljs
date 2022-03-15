@@ -1,7 +1,8 @@
 (ns test-firebase.forms
   (:require [re-frame.core :as re-frame]
             [test-firebase.subs :as subs]
-            [test-firebase.form-events :as form-events]))
+            [test-firebase.form-events :as form-events]
+            [test-firebase.utils :refer [search-list-of-maps-for-keyvalue if-nil?->value]]))
 
 ;;
 ;; functions for generic form inputs
@@ -39,16 +40,18 @@
    [input-element type path]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn if-nil?->value
-  [v default]
-  (if (nil? v) default v))
-(if-nil?->value true false)
+
+
 
 (defn dropdown-search
-  [path all-options]
-  (let [selected-value @(re-frame/subscribe [::subs/get-value path])
+  [path all-options id-keyword display-keyword]
+  (let [saved-index @(re-frame/subscribe [::subs/get-value path])
+        _ (re-frame/dispatch [::form-events/set-value! (into [:dropdown-search :value] path) 
+                              (display-keyword (search-list-of-maps-for-keyvalue all-options id-keyword saved-index))])
+        selected-value @(re-frame/subscribe [::subs/get-value (into [:dropdown-search :value] path)])
         button-text (if (or (nil? selected-value) (empty? selected-value)) "Select a game" selected-value)
         visible (re-frame/subscribe [::subs/get-value (into [:dropdown-search :visible] path)])
+        options @(re-frame/subscribe [::subs/options (into [:dropdown-search :search] path) all-options])
         style {:width "200px"}]
 
     [:div
@@ -57,7 +60,7 @@
                :on-click
                #(re-frame/dispatch [::form-events/set-value! (into [:dropdown-search :visible] path)
                                     (not (if-nil?->value @visible false))])} button-text]
-        ;; [input "In box" :text path]
+     
      [:input {:style (merge {:display (if (if-nil?->value @visible false) "block" "none")} style)
               :type :text
               :placeholder "Type to find a game"
@@ -65,18 +68,20 @@
               :on-change #(;;  re-frame/dispatch [::form/set-value! (into [:dropdown-search :search] path) (-> % .-target .-value)]
                            dispatch :text (into [:dropdown-search :search] path) (-> % .-target .-value))}]
 
-     [:select {:style (merge {:display (if (if-nil?->value @visible false) "block" "none")} style)
+     [:select {:id "games" :style (merge {:display (if (if-nil?->value @visible false) "block" "none")} style)
                :size @(re-frame/subscribe [::subs/select-size (into [:dropdown-search :search] path) all-options])
-              ;;  :value @(re-frame/subscribe [::subs/get-value [:form (str id) :select-value]])
                :on-change (fn [e]
-                            ;; (re-frame/dispatch [::form-events/set-value! [:form (str id) :select-value] (-> e .-target .-value)])
-                            (re-frame/dispatch [::form-events/set-value! path (-> e .-target .-value)])
+                            (let [selected-index (-> e .-target .-selectedIndex)
+                                  selected-id (if (= 0 selected-index) nil (id-keyword (nth options (dec selected-index))))]
+                            (re-frame/dispatch [::form-events/set-value! (into [:dropdown-search :value] path) (-> e .-target .-value)])
                             (re-frame/dispatch [::form-events/set-value! (into [:dropdown-search :visible] path) false])
-                            (re-frame/dispatch [::form-events/set-value! (into [:dropdown-search :search] path) ""]))}
+                            (re-frame/dispatch [::form-events/set-value! (into [:dropdown-search :search] path) ""])
+                            (re-frame/dispatch [::form-events/set-value! path selected-id])
+                            ))}
       [:option {:value ""} "(No game)"]
       (map (fn [m]
-             [:option {:key (:id m) :value (:name m)} (:name m)])
-           @(re-frame/subscribe [::subs/options (into [:dropdown-search :search] path) all-options]))]
+             [:option {:key (id-keyword m) :id (id-keyword m) :value (display-keyword m)} (display-keyword m)])
+           options)]
         ;
      ]))
 

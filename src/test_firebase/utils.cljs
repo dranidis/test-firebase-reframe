@@ -6,6 +6,23 @@
   (s/includes? (s/upper-case str) (s/upper-case substring)))
 
 
+(defn if-nil?->value
+  [v default]
+  (if (nil? v) default v))
+(if-nil?->value true false)
+
+
+
+(defn search-list-of-maps-for-keyvalue
+  [list keyword value]
+  (->> list
+       (filter (fn [m] (= value (keyword m))))
+       first))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn random-char
   []
   (nth (->> (range 10)
@@ -21,7 +38,7 @@
 
 (defn random-name-map
   [len] (->> (range len)
-             (map (fn [n] {:id n :name (random-word 10)}))
+             (map (fn [n] {:id (str n) :name (random-word 10)}))
              (into [])))
 
 
