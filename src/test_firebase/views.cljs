@@ -15,7 +15,7 @@
      [:h4 "Game " (str id)]
      [input "Available" :checkbox [:form :available (str id)]]
      [:label "Item"]
-     (dropdown-search [:form :group-with (str id)] random-names-new :id :name "Click to select" "Type to find a game")
+     (dropdown-search [:form :group-with (str id)] random-names-new :id :name "Click to select" "Type to find a game" "(no selection)")
      [:button {:on-click #(re-frame/dispatch [::events/save-game id])} "Save"]]))
 
 (defn item-div
@@ -38,7 +38,7 @@
      [:div
     ;;  [input "Item" :text [:form collection-id :item-id]]
       [:label "Add an Item"]
-      (dropdown-search [:form  collection-id :item-id] random-names-new :id :name "Click to select" "Type to find a game")
+      (dropdown-search [:form  collection-id :item-id] random-names-new :id :name "Click to select" "Type to find a game" "(no selection)")
 
       [:button {:on-click #(re-frame/dispatch
                             [::events/add-game-to-collection

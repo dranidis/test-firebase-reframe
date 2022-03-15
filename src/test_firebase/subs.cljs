@@ -105,7 +105,7 @@
 
 
 (re-frame/reg-sub
- ::options
+ ::dropdown-select-options
  (fn [db [_ path all-options]]
    (->> all-options
         (filter
@@ -115,9 +115,9 @@
 
 
 (re-frame/reg-sub
- ::select-size
+ ::dropdown-select-size
  (fn [[_ path all-options]]
-   (re-frame/subscribe [::options path all-options]))
+   (re-frame/subscribe [::dropdown-select-options path all-options]))
  (fn [options]
    ;; an extra option is (Nothing)
    (min 10 (inc (count options)))))
