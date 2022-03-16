@@ -49,6 +49,13 @@
    [input-element type path]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn string-list->map-list
+  [options]
+  (map (fn [el] {:value el}) options))
+
+(defn if-string-list?->map-list
+  [options]
+  (if (and (seq options) (map? (first options))) options (string-list->map-list options)))
 
 (defn dropdown-search
   "Creates a **dropdown search component** consisting of a button, a search text, and a select element.
@@ -62,7 +69,8 @@
   [{:keys [db-path options id-keyword display-keyword button-text-empty input-placeholder select-nothing-text] :as config}]
   {:pre [(is (spec/valid?
               (spec/keys :req-un [db-path options id-keyword display-keyword]) config))]}
-  (let [button-text-empty (if-nil?->value button-text-empty "Click to select")
+  (let [options (if-string-list?->map-list options)
+        button-text-empty (if-nil?->value button-text-empty "Click to select")
         input-placeholder (if-nil?->value input-placeholder "Type to filter options")
         select-nothing-text (if-nil?->value select-nothing-text "(no selection)")
         initial-value @(db-get-ref db-path)
