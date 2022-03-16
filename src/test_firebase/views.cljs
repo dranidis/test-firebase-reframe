@@ -15,14 +15,20 @@
      [:h4 "Game " (str id)]
      [input "Available" :checkbox [:form :available (str id)]]
      [:label "Item"]
-     (dropdown-search [:form :group-with (str id)] random-names-new :id :name "Click to select" "Type to find a game" "(no selection)")
+     (dropdown-search {:db-path [:form :group-with (str id)]
+                       :options random-names-new
+                       :id-keyword :id
+                       :display-keyword :name
+                       :button-text-empty "Click to select a game"
+                       :input-placeholder "Type to find a game"
+                       :select-nothing-text "(no selection)"})
      [:button {:on-click #(re-frame/dispatch [::events/save-game id])} "Save"]]))
 
 (defn item-div
   [game-id collection-id]
   ^{:key game-id}
   [:li
-   [:div 
+   [:div
     (:name (find-key-value-in-map-list random-names-new :id (str (name game-id)))) " "
     [:button {:on-click #(re-frame/dispatch [::events/remove-game-from-collection (name game-id) (name collection-id)])} "X"]]])
 
@@ -38,7 +44,10 @@
      [:div
     ;;  [input "Item" :text [:form collection-id :item-id]]
       [:label "Add an Item"]
-      (dropdown-search [:form  collection-id :item-id] random-names-new :id :name "Click to select" "Type to find a game" "(no selection)")
+      (dropdown-search {:db-path [:form  collection-id :item-id]
+                        :options random-names-new
+                        :id-keyword :id
+                        :display-keyword :name})
 
       [:button {:on-click #(re-frame/dispatch
                             [::events/add-game-to-collection
@@ -56,7 +65,16 @@
   (let [collection-ids (re-frame/subscribe [::subs/collection-ids])]
     [:div
      [:h2 "Collections"]
-     [:div [input "Collection name" :text [:form :new-collection-name]]
+
+     [:div
+      [:label "Choose an existing collection"]
+      (println (vals @(re-frame/subscribe [::subs/collections])))
+      (dropdown-search {:db-path [:form  :example]
+                        :options (vals @(re-frame/subscribe [::subs/collections]))
+                        :id-keyword :name
+                        :display-keyword :name})]
+     [:div "Create a new collection"
+      [input "Collection name" :text [:form :new-collection-name]]
       [:button {:on-click #(re-frame/dispatch
                             [::events/new-collection
                              @(re-frame/subscribe [::subs/get-value [:form :new-collection-name]])])} "Create"]]    ;;  [:button {:on-click #(re-frame/dispatch [::events/new-collection (str "Collection-" (rand-int 1000))])} "New collection"]

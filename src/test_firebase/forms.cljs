@@ -2,7 +2,9 @@
   (:require [re-frame.core :as re-frame]
             [test-firebase.subs :as subs]
             [test-firebase.form-events :as form-events]
-            [test-firebase.utils :refer [find-key-value-in-map-list if-nil?->value]]))
+            [test-firebase.utils :refer [find-key-value-in-map-list if-nil?->value]]
+            [clojure.spec.alpha :as spec]
+            [clojure.test :refer [is]]))
 
 
 (defn db-get-ref
@@ -57,8 +59,13 @@
    \n - button-text-empty is the button text when nothing is selected,
    \n - input-placeholder is the placeholder for the search text box,
    \n - select-nothing-text is the text in the first (Nothing) option."
-  [db-path options id-keyword display-keyword button-text-empty input-placeholder select-nothing-text]
-  (let [initial-value @(db-get-ref db-path)
+  [{:keys [db-path options id-keyword display-keyword button-text-empty input-placeholder select-nothing-text] :as config}]
+  {:pre [(is (spec/valid?
+              (spec/keys :req-un [db-path options id-keyword display-keyword]) config))]}
+  (let [button-text-empty (if-nil?->value button-text-empty "Click to select")
+        input-placeholder (if-nil?->value input-placeholder "Type to filter options")
+        select-nothing-text (if-nil?->value select-nothing-text "(no selection)")
+        initial-value @(db-get-ref db-path)
         _ (db-set-value! (into [:dropdown-search :value] db-path)
                          (display-keyword (find-key-value-in-map-list options id-keyword initial-value)))
         value @(db-get-ref (into [:dropdown-search :value] db-path))
@@ -86,8 +93,8 @@
                (fn [e]
                  (let [selected-index (-> e .-target .-selectedIndex)
                        ;; first option is (Nothing to select)
-                       selected-id (if (= 0 selected-index) 
-                                     nil 
+                       selected-id (if (= 0 selected-index)
+                                     nil
                                      (id-keyword (nth select-options (dec selected-index))))]
                    (db-set-value! (into [:dropdown-search :visible] db-path) false)                 ;; hide the search text and select elements
                    (db-set-value! (into [:dropdown-search :search] db-path) "")                     ;; clear the search text
