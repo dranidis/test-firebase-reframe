@@ -53,9 +53,15 @@
   [options]
   (map (fn [el] {:value el}) options))
 
+(defn is-list-of-maps?
+  [list]
+  (and (seq list) (map? (first list))))
+
 (defn if-string-list?->map-list
-  [options]
-  (if (and (seq options) (map? (first options))) options (string-list->map-list options)))
+  [list]
+  (if (is-list-of-maps? list) list (string-list->map-list list)))
+
+(is-list-of-maps? [])
 
 (defn dropdown-search
   "Creates a **dropdown search component** consisting of a button, a search text, and a select element.
@@ -68,8 +74,18 @@
    \n - select-nothing-text is the text in the first (Nothing) option."
   [{:keys [db-path options id-keyword display-keyword button-text-empty input-placeholder select-nothing-text] :as config}]
   {:pre [(is (spec/valid?
-              (spec/keys :req-un [db-path options id-keyword display-keyword]) config))]}
-  (let [options (if-string-list?->map-list options)
+              (spec/keys :req-un [db-path options]) config))]}
+  (let [[options id-keyword display-keyword]
+        (if (or (empty? options) (is-list-of-maps? options))
+          (cond
+            (and (nil? id-keyword) (nil? display-keyword))
+            (throw (js/Error (str "dropdown-search: both id-keyword and display-keyword are nil. Cannot work with a list of maps. Args: " config)))
+            (nil? id-keyword) [options display-keyword display-keyword]
+            (nil? display-keyword) [options id-keyword id-keyword]
+            :else [options id-keyword display-keyword])
+          (if (or id-keyword display-keyword)
+            (throw (js/Error (str "dropdown-seach: id-keyword and display-keyword are ignored when you provide a list of values. Args: " config)))
+            [(string-list->map-list options) :value :value]))
         button-text-empty (if-nil?->value button-text-empty "Click to select")
         input-placeholder (if-nil?->value input-placeholder "Type to filter options")
         select-nothing-text (if-nil?->value select-nothing-text "(no selection)")

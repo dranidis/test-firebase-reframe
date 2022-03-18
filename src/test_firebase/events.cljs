@@ -41,33 +41,12 @@
                                          :key-path [:key]}}))
 
 (re-frame/reg-event-fx
- ::update-available
- (fn-traced [_ [_ id value]]
-            (let [data (if value value nil)]
-              {::fb-reframe/firebase-set {:path ["users" (fb-reframe/get-current-user-uid) "available" id]
-                                          :data data
-                                          :success #(println "Success")}})))
-
-(re-frame/reg-event-fx
- ::update-group-with
- (fn-traced [_ [_ id value]]
-            (let [data (if (empty? value) nil value)]
-              {::fb-reframe/firebase-set {:path ["users" (fb-reframe/get-current-user-uid) "group-with" id]
-                                          :data data
-                                          :success #(println "Success")}})))
-
-;; (re-frame/reg-event-fx
-;;  ::save-game
-;;  (fn-traced [{:keys [db]} [_ id]]
-;;             {:fx [[:dispatch [::update-available id (get-in db [:form :available id])]]
-;;                   [:dispatch [::update-group-with id (get-in db [:form :group-with id])]]]}))
-
-(re-frame/reg-event-fx
  ::save-game
  (fn-traced [{:keys [db]} [_ id]]
             {::fb-reframe/firebase-update {:path ["users" (fb-reframe/get-current-user-uid)]
-                                           :path-data-map {(str "/available/" id) (if-let [v (get-in db [:form :available id])] v nil)
-                                                           (str "/group-with/" id) (get-in db [:form :group-with id])}
+                                           :path-data-map {["available" id] (if-let [v (get-in db [:form :available id])] v nil)
+                                                           ["group-with" id] (get-in db [:form :group-with id])
+                                                           ["collections" (get-in db [:form :add-to-collection id]) "games" id] true}
                                            :success #(println "Success")}}))
 
 
@@ -95,11 +74,15 @@
 (re-frame/reg-event-fx
  ::add-game-to-collection
  (fn-traced [cofx [_ game-id collection-id]]
-            {::fb-reframe/firebase-set
-             {:path ["users" (fb-reframe/get-current-user-uid)
-                     "collections" (if-nil-getcurrentkey collection-id cofx) "games" game-id]
-              :data true
-              :success #(println "Success")}}))
+;;             {::fb-reframe/firebase-set
+;;              {:path ["users" (fb-reframe/get-current-user-uid)
+;;                      "collections" (if-nil-getcurrentkey collection-id cofx) "games" game-id]
+;;               :data true
+;;               :success #(println "Success")}}
+
+            {::fb-reframe/firebase-update {:path ["users" (fb-reframe/get-current-user-uid)]
+                                           :path-data-map {["collections" (if-nil-getcurrentkey collection-id cofx) "games" game-id] true}
+                                           :success #(println "Success")}}))
 
 (re-frame/reg-event-fx
  ::remove-game-from-collection
@@ -174,6 +157,8 @@
   (re-frame/dispatch [::sign-in "dranidis@gmail.com" "password"])
 
   (re-frame/dispatch [::sign-out])
+
+  (fb-reframe/get-current-user-uid)
 
   (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "games" "1" "available"] false])
   (re-frame/dispatch [::update-value ["users" (fb-reframe/get-current-user-uid) "games" "available" "1"] true]) ;; or this?

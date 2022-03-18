@@ -29,7 +29,14 @@
    (fb-sub-user-id ["collections"]))
  (fn [collections]
   ;;  (println "collections" collections)
-   collections))
+   (reduce-kv (fn [m k v] (assoc m k (assoc v :id (name k)))) {} collections)))
+
+(comment
+  (def collections @(re-frame/subscribe [::collections]))
+  collections
+  (vals (reduce-kv (fn [m k v] (assoc m k (assoc v :id (str (name k))))) {} collections))
+;
+  )
 
 (re-frame/reg-sub
  ::collection-ids

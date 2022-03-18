@@ -3,26 +3,41 @@
    [re-frame.core :as re-frame]
    [test-firebase.subs :as subs]
    [test-firebase.events :as events]
-   [test-firebase.forms :refer [input dropdown-search]]
-   [test-firebase.utils :refer [random-names-new find-key-value-in-map-list]]))
+   [test-firebase.forms :refer [input dropdown-search db-set-value!]]
+   [test-firebase.utils :refer [random-names-new find-key-value-in-map-list if-nil?->value]]))
 
 
 (defn game-div
   [id]
-  (let [_ @(re-frame/subscribe [::subs/form id])]
+  (let [_ @(re-frame/subscribe [::subs/form id])
+        collections (if-nil?->value (vals @(re-frame/subscribe [::subs/collections])) [])]
     ^{:key id}
     [:div
-     [:h4 "Game " (str id)]
+
+     [:h1 "Game " (str id)]
      [input "Available" :checkbox [:form :available (str id)]]
-     [:label "Item"]
-     (dropdown-search {:db-path [:form :group-with (str id)]
-                       :options random-names-new
-                       :id-keyword :id
-                       :display-keyword :name
-                       :button-text-empty "Click to select a game"
-                       :input-placeholder "Type to find a game"
-                       :select-nothing-text "(no selection)"})
-     [:button {:on-click #(re-frame/dispatch [::events/save-game id])} "Save"]]))
+     [:div
+      [:label "Group Item with"]
+      (dropdown-search {:db-path [:form :group-with (str id)]
+                        :options random-names-new
+                        :id-keyword :id
+                        :display-keyword :name
+                        :button-text-empty "Click to select a game"
+                        :input-placeholder "Type to find a game"
+                        :select-nothing-text "(no selection)"})]
+     [:div
+      "In collections: "
+      (map (fn [c] [:ul (:name c)])
+           (filter (fn [c] (get-in c [:games (keyword id)]))  collections))]
+
+     [:div
+      [:label "Add to collection"]
+      (dropdown-search {:db-path [:form :add-to-collection (str id)]
+                        :options collections
+                        :id-keyword :id
+                        :display-keyword :name})]
+     [:button {:on-click #((db-set-value! [:form :add-to-collection (str id)] nil)
+                           (re-frame/dispatch [::events/save-game id]))} "Save"]]))
 
 (defn item-div
   [game-id collection-id]
@@ -58,7 +73,7 @@
   []
   [:div
    [:h2 "Games info"]
-   [:div (doall (map #(game-div (str %)) (range 3)))]])
+   [:div (doall (map #(game-div (str %)) (range 1)))]])
 
 (defn collections-div
   []
@@ -70,7 +85,7 @@
       [:label "Choose an existing collection"]
       (println (vals @(re-frame/subscribe [::subs/collections])))
       (dropdown-search {:db-path [:form  :example]
-                        :options (vals @(re-frame/subscribe [::subs/collections]))
+                        :options (if-nil?->value (vals @(re-frame/subscribe [::subs/collections])) [])
                         :id-keyword :name
                         :display-keyword :name})]
      [:div "Create a new collection"
