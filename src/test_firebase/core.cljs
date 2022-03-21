@@ -5,7 +5,8 @@
    [test-firebase.events :as events]
    [test-firebase.views :as views]
    [test-firebase.config :as config]
-   [re-frame-firebase-nine.fb-reframe :refer [set-browser-session-persistence fb-reframe-config]]))
+   [re-frame-firebase-nine.fb-reframe :refer [set-browser-session-persistence fb-reframe-config]]
+   [re-frame-firebase-nine.firebase-auth :refer [get-auth]]))
 
 
 (defn dev-setup []
@@ -27,6 +28,7 @@
                                         :projectId "test-firebase-refr",
                                         :appId "1:1052651152055:web:4971b846529e25aa0ba332"}})
 
+  (get-auth)
   (set-browser-session-persistence)
   ;; set the path in the db for the fb temp storage
   ;; and returning maps instead of lists
